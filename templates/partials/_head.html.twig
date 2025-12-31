@@ -1,0 +1,29 @@
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>{% block title %}L'Arbre à Lunette Paris 12 | Opticien Nation - Lunettes & Lentilles{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}L'Arbre à Lunette, votre opticien à Paris 12ème. Lunettes de vue, solaires, lentilles de contact. Proche Nation et Reuilly-Diderot. Conseils personnalisés.{% endblock %}">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="index, follow">
+    <link rel="manifest" href="{{ asset('site.webmanifest') }}">
+    {% if siteSettings.siteFavicon %}
+        <link rel="shortcut icon" type="image/x-icon" href="{{ asset('assets/uploads/' ~ siteSettings.siteFavicon) }}">
+    {% else %}
+        <link rel="shortcut icon" type="image/x-icon" href="{{ asset('assets/img/logo.png') }}">
+    {% endif %}
+
+    <!-- CSS here (use asset() so Symfony resolves to public/) -->
+    <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/owl.carousel.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/slicknav.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/flaticon.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/progressbar_barfiller.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/gijgo.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/animate.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/animated-headline.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/magnific-popup.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/fontawesome-all.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/themify-icons.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/slick.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/nice-select.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/custom.css') }}">

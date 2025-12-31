@@ -1,0 +1,512 @@
+<!-- New Arrival Start -->
+<div class="new-arrival">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-xl-7 col-lg-8 col-md-10">
+                <div class="section-tittle mb-60 text-center wow fadeInUp" data-wow-duration="2s" data-wow-delay=".2s">
+                    <h2>new<br>arrival</h2>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            {% if newArrivals is defined and newArrivals|length > 0 %}
+                {% for product in newArrivals %}
+                {% set variantsAll = product.variants|default([]) %}
+                {% set variants = [] %}
+                {% for v in variantsAll %}
+                    {% if v.name is defined and v.name == 'Variante par défaut' %}
+                        {# do not show in storefront selection #}
+                    {% else %}
+                        {% set variants = variants|merge([v]) %}
+                    {% endif %}
+                {% endfor %}
+
+                {% if variants is empty and variantsAll|length > 0 %}
+                    {% set variants = variantsAll %}
+                {% endif %}
+                {% set minVariantPrice = null %}
+                {% set hasVariantStock = false %}
+                {% for v in variants %}
+                    {% if v.price is not null %}
+                        {% if minVariantPrice is null or v.price < minVariantPrice %}
+                            {% set minVariantPrice = v.price %}
+                        {% endif %}
+                    {% endif %}
+                    {% if v.stock is not null and v.stock > 0 %}
+                        {% set hasVariantStock = true %}
+                    {% endif %}
+                {% endfor %}
+                {% set effectivePrice = minVariantPrice is not null ? minVariantPrice : 0 %}
+                {% set isAvailable = hasVariantStock %}
+
+                {% set allImages = product.images|default([]) %}
+                {% set defaultImageUrl = allImages|length > 0 ? asset('assets/uploads/' ~ allImages[0].name) : asset('assets/img/gallery/arrival1.png') %}
+                {% set imagesByColor = {} %}
+                {% for image in allImages %}
+                    {% if image.colorTag is defined and image.colorTag and image.name is defined and image.name %}
+                        {% set k = image.colorTag|lower|trim %}
+                        {% if k != '' and imagesByColor[k] is not defined %}
+                            {% set imagesByColor = imagesByColor|merge({ (k): asset('assets/uploads/' ~ image.name) }) %}
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+
+                {# Liste de coloris à afficher (variants en priorité) #}
+                {% set colorItems = [] %}
+                {% set seenColorKeys = [] %}
+                {% if variants|length > 0 %}
+                    {% for v in variants %}
+                        {% set colorKey = v.color ? v.color|lower|trim : '' %}
+                        {% if colorKey != '' and (colorKey not in seenColorKeys) %}
+                            {% set seenColorKeys = seenColorKeys|merge([colorKey]) %}
+                            {% set bg = color_hex(v.colorCode ?? v.color ?? '#e5e5e5') %}
+                            {% set variantPrimary = v.primaryImage is defined ? v.primaryImage : null %}
+                            {% if variantPrimary and variantPrimary.name is defined and variantPrimary.name %}
+                                {% set imgForColor = asset('assets/uploads/' ~ variantPrimary.name) %}
+                            {% else %}
+                                {% set imgForColor = imagesByColor[colorKey] is defined ? imagesByColor[colorKey] : defaultImageUrl %}
+                            {% endif %}
+                            {% set hrefForColor = path('products_details', {slug: product.slug}) ~ '?variant=' ~ v.id %}
+                            {% set cartVariantIdForColor = v.id %}
+                            {% set colorItems = colorItems|merge([
+                                {
+                                    'key': colorKey,
+                                    'label': v.color ? color_label(v.color) : v.name,
+                                    'variantName': v.name is defined ? v.name : null,
+                                    'bg': bg,
+                                    'img': imgForColor,
+                                    'href': hrefForColor,
+                                    'cartVariantId': cartVariantIdForColor
+                                }
+                            ]) %}
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+
+                {% set defaultDetailsHref = path('products_details', {slug: product.slug}) %}
+                {% set defaultCartVariantId = 0 %}
+                {% set defaultVariantTitle = (variants|length > 0 and variants[0].name is defined and variants[0].name) ? variants[0].name : product.name %}
+                {% if colorItems|length > 0 %}
+                    {% if colorItems[0].href is defined %}
+                        {% set defaultDetailsHref = colorItems[0].href %}
+                    {% endif %}
+                    {% if colorItems[0].cartVariantId is defined %}
+                        {% set defaultCartVariantId = colorItems[0].cartVariantId %}
+                    {% endif %}
+                {% endif %}
+
+                <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 col-6">
+                    <div class="single-new-arrival mb-50 text-center wow fadeInUp product-card-enhanced" data-wow-duration="1s" data-wow-delay=".{{ loop.index }}s">
+                        <div class="popular-img">
+                            <!-- Badge Nouveau -->
+                            <div class="product-badge" style="position: absolute; top: 15px; left: 15px; z-index: 2;">
+                                <span style="background: linear-gradient(135deg, #9F78FF 0%, #8a5fff 100%); color: white; padding: 6px 14px; border-radius: 20px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; font-family: 'Poppins', sans-serif; box-shadow: 0 2px 8px rgba(159, 120, 255, 0.4);">✨ Nouveau</span>
+                            </div>
+                            
+                               <img class="na-main-image"
+                                   src="{{ defaultImageUrl }}"
+                                   data-default-src="{{ defaultImageUrl }}"
+                                   alt="{{ product.name }} - Opticien Paris 12"
+                                   loading="lazy"
+                                   style="transition: transform 0.3s ease;">
+                            
+                            <!-- Overlay avec boutons -->
+                            <div class="img-cap" style="display: flex; gap: 8px; justify-content: center; align-items: center;">
+                                <a href="{{ defaultDetailsHref }}" class="na-view-link" style="background: white; color: #1D2547; padding: 8px 16px; border-radius: 5px; font-weight: 600; font-size: 12px; transition: all 0.3s;" onmouseover="this.style.background='#9F78FF'; this.style.color='white'" onmouseout="this.style.background='white'; this.style.color='#1D2547'"><i class="fas fa-eye"></i> Voir</a>
+                                <form method="post" action="{{ path('cart_add', {id: product.id}) }}" class="na-cart-form" style="display:inline; margin:0;">
+                                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('cart_add_' ~ product.id) }}">
+                                    {% if defaultCartVariantId %}
+                                        <input type="hidden" name="variant" value="{{ defaultCartVariantId }}">
+                                    {% endif %}
+                                    <button type="submit" class="na-cart-link" style="background: #9F78FF; color: white; padding: 8px 16px; border-radius: 5px; font-weight: 600; font-size: 12px; transition: all 0.3s; border:0;" onmouseover="this.style.background='#8a5fff'" onmouseout="this.style.background='#9F78FF'"><i class="fas fa-shopping-cart"></i> Ajouter</button>
+                                </form>
+                            </div>
+                            
+                            <div class="favorit-items">
+                                <form method="post" action="{{ path('cart_add', {id: product.id}) }}" class="na-cart-form" style="display:inline; margin:0;">
+                                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('cart_add_' ~ product.id) }}">
+                                    {% if defaultCartVariantId %}
+                                        <input type="hidden" name="variant" value="{{ defaultCartVariantId }}">
+                                    {% endif %}
+                                    <button type="submit" class="add-to-cart-heart na-cart-link" title="Ajouter au panier" style="border:0; background:none; padding:0;">
+                                        <img src="{{ asset('assets/img/gallery/favorit-card.png') }}" alt="Ajouter au panier">
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="popular-caption" style="padding: 20px 10px 15px;">
+                            <!-- Catégorie -->
+                            {% set primaryCategory = product.categories|default(null) %}
+                            {% set secondaryCategory = (product.secondaryCategories is defined and product.secondaryCategories|length > 0) ? (product.secondaryCategories|first) : null %}
+                            {% set displayCategory = primaryCategory ?? secondaryCategory %}
+
+                            {% if displayCategory %}
+                                <div class="product-category" style="margin-bottom: 8px;">
+                                    <span style="color: #9F78FF; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; font-family: 'Poppins', sans-serif;">
+                                        <i class="fas fa-tag" style="margin-right: 4px; font-size: 9px;"></i>{{ displayCategory.name }}
+                                    </span>
+                                </div>
+                            {% endif %}
+                            
+                            <h3 style="margin-bottom: 6px;"><a href="{{ defaultDetailsHref }}" class="na-view-link na-title-link" data-default-title="{{ defaultVariantTitle|e('html_attr') }}" style="font-size: 15px; font-weight: 600; color: #1D2547; font-family: 'Cinzel', serif; transition: color 0.3s;" onmouseover="this.style.color='#9F78FF'" onmouseout="this.style.color='#1D2547'">{{ defaultVariantTitle }}</a></h3>
+
+                            {% if colorItems|length > 0 %}
+                                <div class="na-color-row" aria-label="Couleurs disponibles">
+                                    {% for ci in colorItems %}
+                                        <button type="button"
+                                                class="na-color-bubble {{ loop.first ? 'is-active' : '' }}"
+                                                title="{{ ci.label }}"
+                                                aria-pressed="{{ loop.first ? 'true' : 'false' }}"
+                                                data-image="{{ ci.img }}"
+                                                data-href="{{ ci.href|default('') }}"
+                                                data-cart-variant-id="{{ ci.cartVariantId|default('') }}"
+                                                data-title="{{ (ci.variantName ?? defaultVariantTitle)|default(defaultVariantTitle)|e('html_attr') }}"
+                                                data-color="{{ ci.key }}"
+                                                style="background: {{ ci.bg }};"></button>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            
+                            <!-- Description courte -->
+                            <p style="color: #646D77; font-size: 12px; line-height: 1.4; margin-bottom: 10px; height: 35px; overflow: hidden; font-family: 'Poppins', sans-serif;">
+                                {% set shortDescription = (product.description|default('Lunettes de qualité')|striptags)|trim %}
+                                {{ shortDescription|length > 60 ? shortDescription|slice(0, 60) ~ '...' : shortDescription }}
+                            </p>
+                            
+                            <div class="rating mb-10" style="color: #ffc107; font-size: 13px;">
+                                {% for i in 1..5 %}
+                                    <i class="fas fa-star"></i>
+                                {% endfor %}
+                                <span style="color: #646D77; font-size: 11px; margin-left: 4px;">(4.8)</span>
+                            </div>
+                            
+                            <!-- Prix -->
+                            <div class="product-price" style="margin-top: 12px;">
+                                <span style="font-size: 22px; font-weight: 700; color: #1D2547; font-family: 'Cinzel', serif;">{{ (effectivePrice / 100)|round(2, 'floor') }}€</span>
+                                <span style="font-size: 11px; color: #646D77; font-family: 'Poppins', sans-serif;">TTC</span>
+                            </div>
+                            
+                            <!-- Stock -->
+                            <div class="stock-indicator" style="margin-top: 8px;">
+                                {% if isAvailable %}
+                                    <span style="color: #28a745; font-size: 11px; font-weight: 600; font-family: 'Poppins', sans-serif;">
+                                        <i class="fas fa-check-circle" style="margin-right: 3px;"></i>Disponible
+                                    </span>
+                                {% else %}
+                                    <span style="color: #dc3545; font-size: 11px; font-weight: 600; font-family: 'Poppins', sans-serif;">
+                                        <i class="fas fa-times-circle" style="margin-right: 3px;"></i>Rupture
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="col-12">
+                    <div class="row justify-content-center">
+                        <div class="col-xl-7 col-lg-8 col-md-10 text-center">
+                            <div class="popup_box">
+                                <h3 class="mb-15">Aucun produit disponible pour le moment</h3>
+                                <p class="mb-30">Notre catalogue est en cours de préparation. Revenez un peu plus tard.</p>
+                                <a href="{{ path('contact') }}" class="btn">Nous contacter</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+        {% if newArrivals is defined and newArrivals|length > 0 %}
+            <div class="row justify-content-center">
+                <div class="room-btn">
+                    <a href="{{ path('products_index') }}" class="border-btn">Browse More</a>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+<!-- New Arrival End -->
+
+<style>
+    /* Styles pour les cartes New Arrivals */
+    .new-arrival .product-card-enhanced {
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        border-radius: 12px;
+        overflow: hidden;
+        background: white;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    }
+    
+    .new-arrival .product-card-enhanced:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 12px 30px rgba(159, 120, 255, 0.2);
+    }
+    
+    .new-arrival .popular-img {
+        position: relative;
+        overflow: hidden;
+        background: #f8f9fa;
+    }
+    
+    .new-arrival .product-card-enhanced:hover .popular-img img {
+        transform: scale(1.1);
+    }
+    
+    .new-arrival .img-cap {
+        opacity: 0;
+        transform: translateY(10px);
+        transition: all 0.3s ease;
+    }
+    
+    .new-arrival .product-card-enhanced:hover .img-cap {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    /* Coloris (New Arrivals) */
+    .new-arrival .na-color-row {
+        display: flex;
+        gap: 6px;
+        justify-content: center;
+        align-items: center;
+        flex-wrap: wrap;
+        margin: 10px 0 2px;
+    }
+
+    .new-arrival .na-color-bubble {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        border: 2px solid #e5e5e5;
+        padding: 0;
+        cursor: pointer;
+        transition: transform 0.2s ease;
+    }
+
+    .new-arrival .na-color-bubble:hover {
+        transform: scale(1.05);
+    }
+
+    .new-arrival .na-color-bubble.is-active {
+        border-color: #9F78FF;
+        box-shadow: 0 0 0 2px #fff, 0 0 0 4px #9F78FF;
+    }
+    
+    /* Badge Nouveau avec effet brillant */
+    .new-arrival .product-badge span {
+        animation: shimmer 2.5s infinite;
+        background-size: 200% 200%;
+    }
+    
+    @keyframes shimmer {
+        0%, 100% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+    }
+    
+    /* Catégorie hover */
+    .new-arrival .product-category span:hover {
+        color: #8a5fff;
+        cursor: default;
+    }
+    
+    /* Prix avec animation */
+    .new-arrival .product-price {
+        background: linear-gradient(135deg, #f7f7fd 0%, #e9ecef 100%);
+        padding: 8px 12px;
+        border-radius: 8px;
+        display: inline-block;
+        margin-top: 8px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+    
+    /* Rating améliorer */
+    .new-arrival .rating {
+        transition: transform 0.3s ease;
+    }
+    
+    .new-arrival .product-card-enhanced:hover .rating {
+        transform: scale(1.05);
+    }
+    
+    /* Stock indicator avec icône animée */
+    .new-arrival .stock-indicator i {
+        animation: checkPulse 2s infinite;
+    }
+    
+    @keyframes checkPulse {
+        0%, 100% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.2); opacity: 0.8; }
+    }
+    
+    /* Titre du produit */
+    .new-arrival .popular-caption h3 {
+        transition: all 0.3s ease;
+    }
+    
+    .new-arrival .product-card-enhanced:hover .popular-caption h3 {
+        transform: translateY(-2px);
+    }
+    
+    /* Description effet fade in */
+    .new-arrival .popular-caption p {
+        opacity: 0.8;
+        transition: opacity 0.3s ease;
+    }
+    
+    .new-arrival .product-card-enhanced:hover .popular-caption p {
+        opacity: 1;
+    }
+    
+    /* Responsive pour New Arrivals */
+    @media (max-width: 991px) {
+        .new-arrival .col-xl-3 {
+            margin-bottom: 30px;
+        }
+    }
+    
+    @media (max-width: 767px) {
+        .new-arrival .product-card-enhanced {
+            margin-bottom: 30px;
+        }
+        
+        .new-arrival .popular-caption h3 a {
+            font-size: 14px;
+        }
+        
+        .new-arrival .product-price span:first-child {
+            font-size: 18px !important;
+        }
+        
+        .new-arrival .img-cap a {
+            font-size: 11px !important;
+            padding: 6px 12px !important;
+        }
+    }
+    
+    /* Small devices - 2 colonnes */
+    @media (max-width: 576px) {
+        .new-arrival .col-6 {
+            flex: 0 0 50% !important;
+            max-width: 50% !important;
+            padding-left: 8px;
+            padding-right: 8px;
+        }
+        
+        .new-arrival .product-card-enhanced {
+            margin-bottom: 15px;
+        }
+        
+        .new-arrival .review-card {
+            padding: 15px 10px;
+        }
+        
+        .new-arrival .popular-caption {
+            padding: 15px 8px 10px !important;
+        }
+        
+        .new-arrival .popular-caption h3 a {
+            font-size: 13px;
+        }
+        
+        .new-arrival .popular-caption p {
+            font-size: 11px;
+            height: 30px;
+        }
+        
+        .new-arrival .product-badge span {
+            font-size: 9px;
+            padding: 4px 10px;
+        }
+        
+        .new-arrival .product-category span {
+            font-size: 10px;
+        }
+        
+        .new-arrival .rating {
+            font-size: 11px;
+        }
+        
+        .new-arrival .product-price span:first-child {
+            font-size: 16px !important;
+        }
+        
+        .new-arrival .stock-indicator span {
+            font-size: 10px;
+        }
+        
+        .new-arrival .img-cap {
+            gap: 5px !important;
+        }
+        
+        .new-arrival .img-cap a {
+            font-size: 10px !important;
+            padding: 5px 10px !important;
+        }
+
+        .new-arrival .na-color-bubble {
+            width: 16px;
+            height: 16px;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.new-arrival .product-card-enhanced').forEach(function (card) {
+            var mainImg = card.querySelector('.na-main-image');
+            var viewLinks = card.querySelectorAll('a.na-view-link');
+            var titleLinks = card.querySelectorAll('a.na-title-link');
+            var cartForms = card.querySelectorAll('form.na-cart-form');
+            if (!mainImg) {
+                return;
+            }
+
+            card.querySelectorAll('.na-color-bubble').forEach(function (btn) {
+                btn.addEventListener('click', function (e) {
+                    e.preventDefault();
+
+                    var nextSrc = btn.getAttribute('data-image') || mainImg.getAttribute('data-default-src');
+                    var nextHref = btn.getAttribute('data-href');
+                    var nextCartVariantId = btn.getAttribute('data-cart-variant-id');
+                    var nextTitle = btn.getAttribute('data-title');
+                    if (nextSrc) {
+                        mainImg.src = nextSrc;
+                    }
+
+                    if (nextHref) {
+                        viewLinks.forEach(function (a) {
+                            a.setAttribute('href', nextHref);
+                        });
+                    }
+
+                    if (nextCartVariantId) {
+                        cartForms.forEach(function (f) {
+                            var input = f.querySelector('input[name="variant"]');
+                            if (!input) {
+                                input = document.createElement('input');
+                                input.type = 'hidden';
+                                input.name = 'variant';
+                                f.appendChild(input);
+                            }
+                            input.value = nextCartVariantId;
+                        });
+                    }
+
+                    if (titleLinks && titleLinks.length) {
+                        titleLinks.forEach(function (a) {
+                            var fallbackTitle = a.getAttribute('data-default-title') || a.textContent;
+                            a.textContent = nextTitle || fallbackTitle;
+                        });
+                    }
+
+                    card.querySelectorAll('.na-color-bubble').forEach(function (b) {
+                        b.classList.remove('is-active');
+                        b.setAttribute('aria-pressed', 'false');
+                    });
+                    btn.classList.add('is-active');
+                    btn.setAttribute('aria-pressed', 'true');
+                });
+            });
+        });
+    });
+</script>

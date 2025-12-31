@@ -1,0 +1,23 @@
+<!-- Category Area with Filters and Grid -->
+<div class="category-area">
+    <div class="container">
+        <div class="row">
+            <div class="col-xl-7 col-lg-8 col-md-10">
+                <div class="section-tittle mb-50">
+                    <h2>Shop with us</h2>
+                    <p>Browse from 230 latest items</p>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <!-- Left filters (sidebar on desktop, top on mobile) -->
+            <div class="col-12 col-md-4 col-lg-3">
+                {% include 'products/_filters.html.twig' %}
+            </div>
+            <!-- Right grid -->
+            <div class="col-12 col-md-8 col-lg-9">
+                {% include 'products/_products_grid.html.twig' %}
+            </div>
+        </div>
+    </div>
+</div>

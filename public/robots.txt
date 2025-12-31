@@ -1,0 +1,13 @@
+# robots.txt - Opticien Paris 12
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /var/
+Disallow: /vendor/
+Disallow: /cart/
+Disallow: /profile/
+Disallow: /login
+Disallow: /register
+
+# Sitemap
+Sitemap: https://votresite.com/sitemap.xml

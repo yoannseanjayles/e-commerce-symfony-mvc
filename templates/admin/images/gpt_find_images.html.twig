@@ -1,0 +1,154 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content_title %}🖼️ IA: chercher des images téléchargeables{% endblock %}
+
+{% block main %}
+    <div class="content-panel">
+        <div class="content-panel-header">
+            <h3 class="content-panel-title">Paramètres</h3>
+        </div>
+        <div class="content-panel-body">
+            <form method="post" action="">
+                <input type="hidden" name="_csrf" value="{{ csrf_token('admin_images_gpt_find_images') }}" />
+                <input type="hidden" name="mode" value="search" />
+                <input type="hidden" name="backUrl" value="{{ backUrl|default('') }}" />
+
+                <div class="row g-2 align-items-end">
+                    <div class="col-12 col-lg-4">
+                        <label class="form-label" for="productId">Produit</label>
+                        <select class="form-select" id="productId" name="productId" required>
+                            <option value="">Choisir…</option>
+                            {% for p in products %}
+                                <option value="{{ p.id }}" {{ selectedProduct and selectedProduct.id == p.id ? 'selected' : '' }}>
+                                    #{{ p.id }} — {{ p.name|default('') }}{% if p.brand %} ({{ p.brand }}){% endif %}
+                                </option>
+                            {% endfor %}
+                        </select>
+                        <div class="form-text">Astuce: sélectionne un produit puis une variante (optionnel) pour tagger la couleur.</div>
+                    </div>
+
+                    <div class="col-12 col-lg-4">
+                        <label class="form-label" for="variantId">Variante (optionnel)</label>
+                        <select class="form-select" id="variantId" name="variantId">
+                            <option value="">—</option>
+                            {% for v in variants %}
+                                <option value="{{ v.id }}" {{ selectedVariant and selectedVariant.id == v.id ? 'selected' : '' }}>
+                                    #{{ v.id }} — {{ v.name|default('') }}{% if v.color %} — {{ color_label(v.color) }}{% endif %}
+                                </option>
+                            {% endfor %}
+                        </select>
+                        <div class="form-text">Si une variante est choisie, les images ajoutées seront taggées avec sa couleur.</div>
+                    </div>
+
+                    <div class="col-12 col-lg-2">
+                        <label class="form-label" for="aggressiveness">Agressivité</label>
+                        <select class="form-select" id="aggressiveness" name="aggressiveness">
+                            <option value="low" {{ aggressiveness == 'low' ? 'selected' : '' }}>Prudent</option>
+                            <option value="medium" {{ aggressiveness == 'medium' ? 'selected' : '' }}>Équilibré</option>
+                            <option value="high" {{ aggressiveness == 'high' ? 'selected' : '' }}>Agressif</option>
+                        </select>
+                    </div>
+
+                    <div class="col-12 col-lg-2">
+                        <label class="form-label" for="maxImages">Nb images</label>
+                        <input class="form-control" type="number" id="maxImages" name="maxImages" min="1" max="30" value="{{ maxImages|default(10) }}" />
+                    </div>
+
+                    <div class="col-12 col-lg-2">
+                        <div class="form-check mt-4">
+                            <input class="form-check-input" type="checkbox" value="1" id="webSearch" name="webSearch" {{ webSearch ? 'checked' : '' }}>
+                            <label class="form-check-label" for="webSearch">🔎 Web</label>
+                        </div>
+                    </div>
+
+                    <div class="col-12 text-end mt-2">
+                        <button class="btn btn-primary" type="submit">🖼️ Chercher des images</button>
+                    </div>
+                </div>
+
+                <div class="small text-muted mt-3">
+                    Note: vérifie les droits/licences d’utilisation des images avant publication.
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {% if suggestedImages is defined and suggestedImages|length > 0 %}
+        <div class="content-panel mt-4">
+            <div class="content-panel-header">
+                <h3 class="content-panel-title">Résultats</h3>
+            </div>
+            <div class="content-panel-body">
+                {% if previewStagingErrors is defined and previewStagingErrors|length > 0 %}
+                    <div class="alert alert-warning">
+                        Certaines prévisualisations ont échoué (l’import peut quand même fonctionner). Exemples: {{ previewStagingErrors|slice(0, 2)|join(' | ') }}{% if previewStagingErrors|length > 2 %}…{% endif %}
+                    </div>
+                {% endif %}
+
+                <form method="post" action="">
+                    <input type="hidden" name="_csrf" value="{{ csrf_token('admin_images_gpt_import_images') }}" />
+                    <input type="hidden" name="mode" value="import" />
+                    <input type="hidden" name="backUrl" value="{{ backUrl|default('') }}" />
+                    <input type="hidden" name="productId" value="{{ selectedProduct ? selectedProduct.id : '' }}" />
+                    <input type="hidden" name="variantId" value="{{ selectedVariant ? selectedVariant.id : '' }}" />
+                    <input type="hidden" name="maxImages" value="{{ maxImages|default(10) }}" />
+
+                    <div class="row g-3">
+                        {% for img in suggestedImages %}
+                            {% set url = img.url|default('') %}
+                            {% set previewLocalPath = img.previewLocalPath|default('') %}
+                            {% if url %}
+                                <div class="col-12 col-md-6 col-xl-4">
+                                    <div class="border rounded p-2 h-100" style="background: #fff;">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="selectedUrls[]" value="{{ url }}" id="img_{{ loop.index }}" checked>
+                                            <label class="form-check-label" for="img_{{ loop.index }}">
+                                                {{ img.label|default('Image') }}
+                                            </label>
+                                        </div>
+
+                                        <div class="mt-2" style="aspect-ratio: 1 / 1; overflow: hidden; border-radius: 8px; background: #f7f7fd;">
+                                            {% if previewLocalPath %}
+                                                <img src="{{ asset(previewLocalPath) }}" alt="{{ img.label|default('Image') }}" loading="lazy" style="width:100%;height:100%;object-fit:cover;" />
+                                            {% else %}
+                                                <img src="{{ url }}" alt="{{ img.label|default('Image') }}" loading="lazy" style="width:100%;height:100%;object-fit:cover;" referrerpolicy="no-referrer" />
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="small text-muted mt-2" style="word-break: break-all;">{{ url }}</div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+
+                    <div class="d-flex justify-content-end mt-3">
+                        <button class="btn btn-success" type="submit">⬇️ Télécharger & ajouter au produit</button>
+                    </div>
+                </form>
+
+                {% if sources is defined and sources|length > 0 %}
+                    <div class="small text-muted mt-3">
+                        <div class="fw-semibold">Sources (IA)</div>
+                        <ul class="mb-0">
+                            {% for s in sources %}
+                                <li>{{ s }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+
+                {% if notes is defined and notes|length > 0 %}
+                    <div class="small text-muted mt-3">
+                        <div class="fw-semibold">Notes (IA)</div>
+                        <ul class="mb-0">
+                            {% for n in notes %}
+                                <li>{{ n }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,10 @@
+var/
+vendor/
+.git
+.gitignore
+.env.local
+.env.*.local
+node_modules/
+*.md
+tests/
+.github/

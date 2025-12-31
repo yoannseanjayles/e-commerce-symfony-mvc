@@ -1,0 +1,212 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Contact L'Arbre à Lunette Paris 12 - Adresse, Horaires & Plan{% endblock %}
+{% block meta_description %}Contactez L'Arbre à Lunette, votre opticien Paris 12. Adresse : près de Nation, 75012 Paris. Horaires : Lun-Sam 9h30-19h. Tel, email, plan d'accès.{% endblock %}
+
+{% block content %}
+
+    <!-- breadcrumb Start-->
+    <div class="page-notification page-notification2">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb justify-content-center">
+                            <li class="breadcrumb-item"><a href="{{ path('shionhouse_index') }}">Accueil</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Contact</li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- breadcrumb End-->
+
+    <!--  Contact Area start  -->
+    <section class="contact-section">
+        <div class="container">
+            {% for message in app.flashes('success') %}
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            {% endfor %}
+
+            <div class="row">
+                <div class="col-12">
+                    <h1 class="contact-title">Contactez L'Arbre à Lunette - Opticien Paris 12</h1>
+                </div>
+                <div class="col-lg-8">
+                    {{ form_start(contactForm, {'attr': {'class': 'form-contact contact_form', 'id': 'contactForm'}}) }}
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    {{ form_widget(contactForm.name, {'attr': {'class': 'form-control', 'placeholder': 'Votre nom'}}) }}
+                                    {{ form_errors(contactForm.name) }}
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    {{ form_widget(contactForm.email, {'attr': {'class': 'form-control', 'placeholder': 'Votre email'}}) }}
+                                    {{ form_errors(contactForm.email) }}
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-group">
+                                    {{ form_widget(contactForm.subject, {'attr': {'class': 'form-control', 'placeholder': 'Sujet'}}) }}
+                                    {{ form_errors(contactForm.subject) }}
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-group">
+                                    {{ form_widget(contactForm.message, {'attr': {'class': 'form-control w-100', 'cols': 30, 'rows': 9, 'placeholder': 'Votre message'}}) }}
+                                    {{ form_errors(contactForm.message) }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group mt-3">
+                            <button type="submit" class="button button-contactForm boxed-btn">Envoyer</button>
+                        </div>
+                    {{ form_end(contactForm) }}
+                </div>
+                <div class="col-lg-3 offset-lg-1">
+                    {% if site_settings().siteAddress %}
+                    <div class="media contact-info" itemscope itemtype="https://schema.org/LocalBusiness">
+                        <span class="contact-info__icon"><i class="ti-home"></i></span>
+                        <div class="media-body">
+                            <h3>Notre Magasin</h3>
+                            <p itemprop="address" itemscope itemtype="https://schema.org/PostalAddress">
+                                <strong itemprop="name">L'Arbre à Lunette</strong><br>
+                                <span itemprop="streetAddress">{{ site_settings().siteAddress|nl2br }}</span><br>
+                                <span itemprop="postalCode">75012</span> <span itemprop="addressLocality">Paris</span>
+                            </p>
+                            <p><small>Métro : Nation (1,2,6,9) / Reuilly-Diderot (8)</small></p>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="media contact-info">
+                        <span class="contact-info__icon"><i class="ti-time"></i></span>
+                        <div class="media-body">
+                            <h3>Horaires d'ouverture</h3>
+                            <p>
+                                <strong>Lundi - Vendredi :</strong> 9h30 - 19h00<br>
+                                <strong>Samedi :</strong> 9h30 - 19h00<br>
+                                <strong>Dimanche :</strong> Fermé
+                            </p>
+                        </div>
+                    </div>
+                    
+                    {% if site_settings().sitePhone %}
+                    <div class="media contact-info">
+                        <span class="contact-info__icon"><i class="ti-tablet"></i></span>
+                        <div class="media-body">
+                            <h3><a href="tel:{{ site_settings().sitePhone }}" itemprop="telephone">{{ site_settings().sitePhone }}</a></h3>
+                            <p>Appelez-nous pour un rendez-vous</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if site_settings().siteEmail %}
+                    <div class="media contact-info">
+                        <span class="contact-info__icon"><i class="ti-email"></i></span>
+                        <div class="media-body">
+                            <h3><a href="mailto:{{ site_settings().siteEmail }}">{{ site_settings().siteEmail }}</a></h3>
+                            <p>Envoyez-nous votre demande !</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if site_settings().facebookUrl or site_settings().twitterUrl or site_settings().instagramUrl or site_settings().youtubeUrl or site_settings().tiktokUrl or site_settings().pinterestUrl %}
+                    <div class="media contact-info">
+                        <span class="contact-info__icon"><i class="ti-world"></i></span>
+                        <div class="media-body">
+                            <h3>Suivez-nous</h3>
+                            <div class="footer-social" style="margin-top: 10px;">
+                                {% if site_settings().facebookUrl %}
+                                    <a href="{{ site_settings().facebookUrl }}" target="_blank"><i class="fab fa-facebook-f"></i></a>
+                                {% endif %}
+                                {% if site_settings().twitterUrl %}
+                                    <a href="{{ site_settings().twitterUrl }}" target="_blank"><i class="fab fa-twitter"></i></a>
+                                {% endif %}
+                                {% if site_settings().instagramUrl %}
+                                    <a href="{{ site_settings().instagramUrl }}" target="_blank"><i class="fab fa-instagram"></i></a>
+                                {% endif %}
+                                {% if site_settings().youtubeUrl %}
+                                    <a href="{{ site_settings().youtubeUrl }}" target="_blank"><i class="fab fa-youtube"></i></a>
+                                {% endif %}
+                                {% if site_settings().tiktokUrl %}
+                                    <a href="{{ site_settings().tiktokUrl }}" target="_blank"><i class="fab fa-tiktok"></i></a>
+                                {% endif %}
+                                {% if site_settings().pinterestUrl %}
+                                    <a href="{{ site_settings().pinterestUrl }}" target="_blank"><i class="fab fa-pinterest-p"></i></a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Google Maps Section -->
+            <div class="row mt-5">
+                <div class="col-12">
+                    <h2 class="mb-4 text-center">📍 Plan d'accès - L'Arbre à Lunette Paris 12</h2>
+                    <p class="text-center mb-4" style="color: #646D77;">
+                        Nous sommes situés au cœur du 12ème arrondissement, à proximité de la Place de la Nation.<br>
+                        <strong>Métro :</strong> Nation (lignes 1, 2, 6, 9) • Reuilly-Diderot (ligne 8)
+                    </p>
+                    <div class="map-container" style="position: relative; padding-bottom: 450px; height: 0; overflow: hidden; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                        <iframe 
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d5251.935483141314!2d2.394023!3d48.839754000000006!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47e6726951fed5ed%3A0xe1b78935486dafb1!2sL&#39;Arbre%20A%20Lunettes!5e0!3m2!1sfr!2sfr!4v1765835966324!5m2!1sfr!2sfr" 
+                            width="100%" 
+                            height="450" 
+                            style="border:0; position: absolute; top: 0; left: 0; width: 100%; height: 100%;" 
+                            allowfullscreen="" 
+                            loading="lazy" 
+                            referrerpolicy="no-referrer-when-downgrade"
+                            title="Plan d'accès L'Arbre à Lunette Paris 12">
+                        </iframe>
+                    </div>
+                    
+                    <!-- Instructions d'accès -->
+                    <div class="row mt-4">
+                        <div class="col-md-4">
+                            <div class="access-info" style="padding: 20px; background: #f8f9fa; border-radius: 8px; text-align: center;">
+                                <i class="ti-location-pin" style="font-size: 32px; color: #9F78FF; margin-bottom: 10px;"></i>
+                                <h4 style="font-size: 16px; margin-bottom: 10px;">En Métro</h4>
+                                <p style="font-size: 14px; color: #646D77; margin: 0;">
+                                    Lignes 1, 2, 6, 9 : Nation<br>
+                                    Ligne 8 : Reuilly-Diderot
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="access-info" style="padding: 20px; background: #f8f9fa; border-radius: 8px; text-align: center;">
+                                <i class="ti-car" style="font-size: 32px; color: #9F78FF; margin-bottom: 10px;"></i>
+                                <h4 style="font-size: 16px; margin-bottom: 10px;">En Voiture</h4>
+                                <p style="font-size: 14px; color: #646D77; margin: 0;">
+                                    Parking Indigo Nation<br>
+                                    12 Avenue du Trône
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="access-info" style="padding: 20px; background: #f8f9fa; border-radius: 8px; text-align: center;">
+                                <i class="ti-direction-alt" style="font-size: 32px; color: #9F78FF; margin-bottom: 10px;"></i>
+                                <h4 style="font-size: 16px; margin-bottom: 10px;">En Bus</h4>
+                                <p style="font-size: 14px; color: #646D77; margin: 0;">
+                                    Lignes 26, 56, 57, 71, 86<br>
+                                    Arrêt Nation
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Contact Area End -->
+{% endblock %}

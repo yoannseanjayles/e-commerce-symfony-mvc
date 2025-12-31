@@ -1,0 +1,56 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content_title %}Associer l'image à une variante{% endblock %}
+
+{% block main %}
+    <div class="container">
+        <div style="display:flex; gap: 18px; flex-wrap: wrap; align-items: flex-start;">
+            <div style="flex: 0 0 220px;">
+                <div style="border: 1px solid #e5e5e5; border-radius: 6px; padding: 10px; background:#fff;">
+                    <div style="font-weight:600; margin-bottom: 8px;">Aperçu</div>
+                    {% if image.name %}
+                        <img src="{{ asset('assets/uploads/' ~ image.name) }}" alt="Image" style="width: 200px; height: 200px; object-fit: cover; border-radius: 6px;" />
+                    {% else %}
+                        <div style="width:200px;height:200px;background:#f7f7fd;border-radius:6px;"></div>
+                    {% endif %}
+                    <div style="margin-top: 8px; color:#646D77; font-size: 12px;">
+                        Produit: <strong>{{ product.name }}</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div style="flex: 1 1 360px; min-width: 300px;">
+                <form method="post">
+                    <input type="hidden" name="_csrf" value="{{ csrf_token('admin_images_assign_to_variant') }}">
+                    <input type="hidden" name="imageId" value="{{ image.id }}">
+                    <input type="hidden" name="backUrl" value="{{ backUrl }}">
+
+                    <div style="margin-bottom: 12px;">
+                        <label for="variantId" style="display:block; font-weight:600; margin-bottom: 6px;">Variante</label>
+                        <select id="variantId" name="variantId" required style="min-width: 320px; padding: 10px 12px; border: 1px solid #e5e5e5; border-radius: 6px;">
+                            <option value="">Choisir…</option>
+                            {% for v in variants %}
+                                <option value="{{ v.id }}" {% if currentVariantId and currentVariantId == v.id %}selected{% endif %}>
+                                    #{{ v.id }} — {{ v.name|default('') }}{% if v.color %} — {{ v.color }}{% endif %}
+                                </option>
+                            {% endfor %}
+                        </select>
+                        {% if variants is empty %}
+                            <div style="margin-top: 8px; color:#646D77; font-size: 12px;">Aucune variante disponible pour ce produit.</div>
+                        {% endif %}
+                    </div>
+
+                    <div style="display:flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+                        <button class="btn btn-primary" type="submit" name="mode" value="link">Associer</button>
+                        <button class="btn btn-outline-danger" type="submit" name="mode" value="unlink">Dissocier</button>
+                        <a class="btn btn-secondary" href="{{ backUrl }}">Retour</a>
+                    </div>
+
+                    <div style="margin-top: 12px; color:#646D77; font-size: 12px;">
+                        Note: certains sites (Ray-Ban/SunglassHut…) bloquent les téléchargements serveur (HTTP 403). Dans ce cas, utilisez une URL d'image directe (fichier .jpg/.png/.webp) ou une autre source.
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

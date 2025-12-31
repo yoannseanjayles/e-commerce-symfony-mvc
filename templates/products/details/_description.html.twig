@@ -1,0 +1,47 @@
+<div class="product__details__tab">
+    <ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link active" data-toggle="tab" href="#tabs-1" role="tab">Description</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="tab" href="#tabs-2" role="tab">Spécifications</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="tab" href="#tabs-3" role="tab">Avis</a>
+        </li>
+    </ul>
+    <div class="tab-content">
+        <div class="tab-pane active" id="tabs-1" role="tabpanel">
+            <h6>Description</h6>
+            {{ product.description|sanitize_html }}
+        </div>
+        <div class="tab-pane" id="tabs-2" role="tabpanel">
+            <h6>Spécifications</h6>
+            <ul>
+                {% set variantsAll = product.variants|default([]) %}
+                {% set variants = [] %}
+                {% for v in variantsAll %}
+                    {% if v.name is defined and v.name == 'Variante par défaut' %}
+                    {% else %}
+                        {% set variants = variants|merge([v]) %}
+                    {% endif %}
+                {% endfor %}
+
+                {% if variants is empty and variantsAll|length > 0 %}
+                    {% set variants = variantsAll %}
+                {% endif %}
+                {% set fallbackVariant = variants|length > 0 ? (variants|first) : (variantsAll|length > 0 ? (variantsAll|first) : null) %}
+                {% set activeVariant = (selectedVariant is defined and selectedVariant and selectedVariant.name is defined and selectedVariant.name != 'Variante par défaut') ? selectedVariant : fallbackVariant %}
+                {% set stockQty = (effectiveStock is defined and effectiveStock is not null) ? effectiveStock : ((activeVariant and activeVariant.stock is not null) ? activeVariant.stock : null) %}
+                <li><strong>Marque:</strong> {{ product.brand|default('N/A') }}</li>
+                <li><strong>Couleur:</strong> {{ (activeVariant and activeVariant.color) ? color_label(activeVariant.color) : 'N/A' }}</li>
+                <li><strong>Catégorie:</strong> {{ product.categories.name }}</li>
+                <li><strong>Stock disponible:</strong> {{ stockQty is not null ? stockQty : 'N/A' }}</li>
+            </ul>
+        </div>
+        <div class="tab-pane" id="tabs-3" role="tabpanel">
+            <h6>Avis clients</h6>
+            <p>Aucun avis pour le moment. Soyez le premier à donner votre avis sur ce produit.</p>
+        </div>
+    </div>
+</div>

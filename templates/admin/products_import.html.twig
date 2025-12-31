@@ -1,0 +1,154 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content_title %}Importer un produit (code-barres){% endblock %}
+
+{% block main %}
+    <div class="content-panel">
+        <div class="content-panel-body">
+            {{ form_start(form) }}
+                <div class="position-relative">
+                    {{ form_row(form.search, {
+                        attr: {
+                            'autocomplete': 'off',
+                            'data-lookup-url': path('admin_products_lookup_search')
+                        }
+                    }) }}
+                    {{ form_widget(form.externalId) }}
+                    {{ form_widget(form.externalSource) }}
+                    <div id="product-lookup-suggestions" class="list-group position-absolute w-100" style="z-index: 1000; display: none;"></div>
+                </div>
+                {{ form_row(form.name) }}
+                {{ form_row(form.brand) }}
+                {{ form_row(form.color) }}
+                {{ form_row(form.description) }}
+                {{ form_row(form.barcode) }}
+                {{ form_row(form.categories) }}
+                {{ form_row(form.price) }}
+                {{ form_row(form.stock) }}
+                {{ form_row(form.updateIfExists) }}
+
+                <button class="btn btn-primary" type="submit">Importer</button>
+            {{ form_end(form) }}
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            const searchInput = document.getElementById('{{ form.search.vars.id }}');
+            const nameInput = document.getElementById('{{ form.name.vars.id }}');
+            const brandInput = document.getElementById('{{ form.brand.vars.id }}');
+            const colorInput = document.getElementById('{{ form.color.vars.id }}');
+            const descriptionInput = document.getElementById('{{ form.description.vars.id }}');
+            const barcodeInput = document.getElementById('{{ form.barcode.vars.id }}');
+            const externalIdInput = document.getElementById('{{ form.externalId.vars.id }}');
+            const externalSourceInput = document.getElementById('{{ form.externalSource.vars.id }}');
+            const listEl = document.getElementById('product-lookup-suggestions');
+            if (!searchInput || !nameInput || !brandInput || !colorInput || !descriptionInput || !barcodeInput || !externalIdInput || !externalSourceInput || !listEl) return;
+
+            const lookupUrl = searchInput.dataset.lookupUrl;
+            if (!lookupUrl) return;
+
+            let abortController = null;
+            let debounceTimer = null;
+
+            function clearList() {
+                listEl.innerHTML = '';
+                listEl.style.display = 'none';
+            }
+
+            function renderItem(item) {
+                const a = document.createElement('a');
+                a.href = '#';
+                a.className = 'list-group-item list-group-item-action';
+
+                const title = document.createElement('div');
+                title.className = 'fw-semibold';
+                title.textContent = item.label || '';
+
+                const meta = document.createElement('div');
+                meta.className = 'small text-muted';
+                const parts = [];
+                if (item.brand) parts.push(item.brand);
+                if (item.source) parts.push(item.source);
+                if (item.externalId) parts.push(item.externalId);
+                if (item.barcode) parts.push('EAN/UPC: ' + item.barcode);
+                meta.textContent = parts.join(' • ');
+
+                a.appendChild(title);
+                a.appendChild(meta);
+
+                a.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    searchInput.value = item.label || '';
+                    nameInput.value = item.label || '';
+                    brandInput.value = item.brand || '';
+                    colorInput.value = item.color || '';
+                    descriptionInput.value = item.description || '';
+                    externalIdInput.value = item.externalId || '';
+                    externalSourceInput.value = item.source || '';
+                    barcodeInput.value = item.barcode || '';
+                    clearList();
+                });
+
+                return a;
+            }
+
+            async function doSearch(q) {
+                if (abortController) abortController.abort();
+                abortController = new AbortController();
+
+                const url = new URL(lookupUrl, window.location.origin);
+                url.searchParams.set('q', q);
+                url.searchParams.set('limit', '10');
+
+                const res = await fetch(url.toString(), {
+                    headers: { 'Accept': 'application/json' },
+                    signal: abortController.signal
+                });
+
+                if (!res.ok) return [];
+                const payload = await res.json();
+                return Array.isArray(payload.results) ? payload.results : [];
+            }
+
+            searchInput.addEventListener('input', function () {
+                const q = (searchInput.value || '').trim();
+                externalIdInput.value = '';
+                externalSourceInput.value = '';
+                nameInput.value = '';
+                brandInput.value = '';
+                colorInput.value = '';
+                descriptionInput.value = '';
+
+                if (debounceTimer) window.clearTimeout(debounceTimer);
+                if (q.length < 3) {
+                    clearList();
+                    return;
+                }
+
+                debounceTimer = window.setTimeout(async function () {
+                    try {
+                        const items = await doSearch(q);
+                        listEl.innerHTML = '';
+                        if (!items.length) {
+                            clearList();
+                            return;
+                        }
+
+                        for (const item of items) {
+                            listEl.appendChild(renderItem(item));
+                        }
+                        listEl.style.display = 'block';
+                    } catch (e) {
+                        clearList();
+                    }
+                }, 250);
+            });
+
+            document.addEventListener('click', function (e) {
+                if (e.target === searchInput || listEl.contains(e.target)) return;
+                clearList();
+            });
+        })();
+    </script>
+{% endblock %}

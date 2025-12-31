@@ -1,0 +1,7 @@
+{% extends '@EasyAdmin/crud/edit.html.twig' %}
+
+{% block main %}
+    {{ include('admin/products/_gpt_enhance_panel.html.twig') }}
+    {{ include('admin/_ai_image_search_shortcut.html.twig', {productId: entity.primaryKeyValue|default('')}) }}
+    {{ parent() }}
+{% endblock %}

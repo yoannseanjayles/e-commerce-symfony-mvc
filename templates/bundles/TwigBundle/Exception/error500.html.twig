@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Erreur serveur{% endblock %}
+
+{% block content %}
+<div class="page-notification page-notification2">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb justify-content-center">
+                        <li class="breadcrumb-item"><a href="{{ path('shionhouse_index') }}">Home</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Erreur serveur</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="section-padding">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-xl-7 col-lg-8 col-md-10 text-center">
+                <div class="popup_box">
+                    <h1 class="mb-15">Erreur serveur</h1>
+                    <p class="mb-30">Un problème technique est survenu. Nos équipes ont été prévenues et travaillent à le résoudre.</p>
+
+                    <a class="btn mr-10 mb-10" href="{{ path('products_index') }}">Retour au shop</a>
+                    <a class="border-btn mb-10" href="{{ path('shionhouse_index') }}">Retour à l’accueil</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

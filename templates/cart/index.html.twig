@@ -1,0 +1,570 @@
+{% extends 'base.html.twig' %}
+
+{% block content %}
+    <!-- Auto-call script after page load -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Vérifier si un appel doit être déclenché après validation
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('validated') === '1') {
+                // Attendre que la page soit complètement chargée
+                setTimeout(function() {
+                    {% if site_settings().sitePhone %}
+                        window.location.href = 'tel:{{ site_settings().sitePhone }}';
+                    {% else %}
+                        window.location.href = '{{ path('contact') }}';
+                    {% endif %}
+                }, 500);
+            }
+        });
+    </script>
+
+    <section class="cart-area pt-100 pb-100">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <!-- Page Title -->
+                    <div class="cart-page-title mb-60">
+                        <h2>Mon Panier</h2>
+                        <p>Gérez vos articles et procédez à la commande</p>
+                    </div>
+
+                    {% if data is empty %}
+                        <!-- Empty Cart -->
+                        <div class="empty-cart-wrapper text-center py-5">
+                            <div class="empty-cart-icon mb-30">
+                                <i class="fas fa-shopping-cart" style="font-size: 80px; color: #9F78FF;"></i>
+                            </div>
+                            <h3 class="mb-20">Votre panier est vide</h3>
+                            <p class="mb-30">Commencez vos achats dès maintenant et découvrez nos magnifiques produits</p>
+                            <a href="{{ path('products_index') }}" class="btn">Continuer vos achats</a>
+                        </div>
+                    {% else %}
+                        <!-- Cart Items Table -->
+                        <div class="cart-table-wrapper">
+                            <div class="table-responsive">
+                                <table class="cart-table">
+                                    <thead>
+                                        <tr>
+                                            <th class="product-name">Produit</th>
+                                            <th class="product-price">Prix</th>
+                                            <th class="product-quantity">Quantité</th>
+                                            <th class="product-total">Total</th>
+                                            <th class="product-action">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for element in data %}
+                                            <tr class="cart-item">
+                                                <td class="product-name">
+                                                    <div class="cart-product-preview">
+                                                        {% set firstImage = element.product.images|first %}
+                                                        {% set hasPrimaryVariantImage = false %}
+                                                        {% if element.variant is defined and element.variant and element.variant.primaryImage is defined and element.variant.primaryImage and element.variant.primaryImage.name is defined and element.variant.primaryImage.name %}
+                                                            {% set firstImage = element.variant.primaryImage %}
+                                                            {% set hasPrimaryVariantImage = true %}
+                                                        {% endif %}
+
+                                                        {% if (not hasPrimaryVariantImage) and element.variant is defined and element.variant and element.variant.color is defined and element.variant.color %}
+                                                            {% set variantColorKey = element.variant.color|lower|trim %}
+                                                            {% if variantColorKey != '' %}
+                                                                {% set foundColorImage = false %}
+                                                                {% for img in element.product.images|default([]) %}
+                                                                    {% if (not foundColorImage) and img.colorTag is defined and img.colorTag and img.colorTag|lower|trim == variantColorKey %}
+                                                                        {% set firstImage = img %}
+                                                                        {% set foundColorImage = true %}
+                                                                    {% endif %}
+                                                                {% endfor %}
+                                                            {% endif %}
+                                                        {% endif %}
+
+                                                        {% set detailsHref = path('products_details', {slug: element.product.slug}) %}
+                                                        {% if element.variantId is defined and element.variantId and element.variantId > 0 %}
+                                                            {% set detailsHref = detailsHref ~ '?variant=' ~ element.variantId %}
+                                                        {% endif %}
+
+                                                        <a class="cart-product-thumb" href="{{ detailsHref }}" title="Voir le produit">
+                                                            {% if firstImage %}
+                                                                <img src="{{ asset('assets/uploads/' ~ firstImage.name) }}" alt="{{ element.product.name }}" loading="lazy">
+                                                            {% else %}
+                                                                <div class="cart-product-thumb-placeholder" aria-hidden="true"></div>
+                                                            {% endif %}
+                                                        </a>
+                                                        <div class="product-item-name">
+                                                            <a href="{{ detailsHref }}">{{ element.product.name }}</a>
+                                                            {% if element.variant is defined and element.variant %}
+                                                                <div style="color:#646D77;font-size:12px;margin-top:4px;">
+                                                                    {{ element.variant.name }}
+                                                                    {% if element.variant.color is defined and element.variant.color %} — {{ color_label(element.variant.color) }}{% endif %}
+                                                                    {% if element.selectedSize is defined and element.selectedSize %} — Taille: {{ element.selectedSize }}{% endif %}
+                                                                </div>
+                                                            {% endif %}
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td class="product-price">
+                                                    <span class="price-amount">{{ (element.unitPrice / 100)|round(2, 'floor') }} €</span>
+                                                </td>
+                                                <td class="product-quantity">
+                                                    <div class="quantity-control">
+                                                        <form method="post" action="{{ path('cart_remove', {id: element.product.id}) }}" style="display:inline; margin:0;">
+                                                            {% if element.variantId is defined and element.variantId and element.variantId > 0 %}
+                                                                <input type="hidden" name="variant" value="{{ element.variantId }}">
+                                                            {% endif %}
+                                                            {% if element.selectedSize is defined and element.selectedSize %}
+                                                                <input type="hidden" name="size" value="{{ element.selectedSize }}">
+                                                            {% endif %}
+                                                            <input type="hidden" name="_csrf_token" value="{{ csrf_token('cart_remove_' ~ element.product.id) }}">
+                                                            <button type="submit" class="qty-btn qty-minus" title="Réduire la quantité" style="border:0; background:none; padding:0;">
+                                                                <i class="ti-minus"></i>
+                                                            </button>
+                                                        </form>
+
+                                                        <input type="text" class="qty-input" value="{{ element.quantity }}" readonly>
+
+                                                        <form method="post" action="{{ path('cart_add', {id: element.product.id}) }}" style="display:inline; margin:0;">
+                                                            {% if element.variantId is defined and element.variantId and element.variantId > 0 %}
+                                                                <input type="hidden" name="variant" value="{{ element.variantId }}">
+                                                            {% endif %}
+                                                            {% if element.selectedSize is defined and element.selectedSize %}
+                                                                <input type="hidden" name="size" value="{{ element.selectedSize }}">
+                                                            {% endif %}
+                                                            <input type="hidden" name="_csrf_token" value="{{ csrf_token('cart_add_' ~ element.product.id) }}">
+                                                            <button type="submit" class="qty-btn qty-plus" title="Augmenter la quantité" style="border:0; background:none; padding:0;">
+                                                                <i class="ti-plus"></i>
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                </td>
+                                                <td class="product-total">
+                                                    <span class="total-amount">{{ (element.quantity * element.unitPrice / 100)|round(2, 'floor') }} €</span>
+                                                </td>
+                                                <td class="product-action">
+                                                    <form method="post" action="{{ path('cart_delete', {id: element.product.id}) }}" style="display:inline; margin:0;">
+                                                        {% if element.variantId is defined and element.variantId and element.variantId > 0 %}
+                                                            <input type="hidden" name="variant" value="{{ element.variantId }}">
+                                                        {% endif %}
+                                                        {% if element.selectedSize is defined and element.selectedSize %}
+                                                            <input type="hidden" name="size" value="{{ element.selectedSize }}">
+                                                        {% endif %}
+                                                        <input type="hidden" name="_csrf_token" value="{{ csrf_token('cart_delete_' ~ element.product.id) }}">
+                                                        <button type="submit" class="delete-btn" title="Supprimer l'article" style="border:0; background:none; padding:0;">
+                                                            <i class="ti-trash"></i>
+                                                        </button>
+                                                    </form>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Cart Summary -->
+                        <div class="row mt-60">
+                            <div class="col-lg-8 col-md-8">
+                                <!-- Continue Shopping -->
+                                <div class="continue-shopping-wrapper">
+                                    <a href="{{ path('products_index') }}" class="border-btn">
+                                        <i class="ti-arrow-left"></i> Continuer vos achats
+                                    </a>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-4 col-md-4">
+                                <!-- Cart Totals -->
+                                <div class="cart-summary-box">
+                                    <h3>Résumé du Panier</h3>
+                                    
+                                    <div class="summary-item">
+                                        <span class="summary-label">Subtotal:</span>
+                                        <span class="summary-value">{{ (total / 100)|round(2, 'floor') }} €</span>
+                                    </div>
+
+                                    <div class="summary-item">
+                                        <span class="summary-label">Livraison:</span>
+                                        <span class="summary-value">Gratuite</span>
+                                    </div>
+
+                                    <div class="summary-divider"></div>
+
+                                    <div class="summary-total">
+                                        <span class="summary-label">Total:</span>
+                                        <span class="summary-amount">{{ (total / 100)|round(2, 'floor') }} €</span>
+                                    </div>
+
+                                    <div class="cart-actions mt-30">
+                                        <!-- Bouton Valider commande et Contacter -->
+                                        {% set stripe_enabled = site_settings() ? (site_settings().stripeEnabled ?? false) : false %}
+                                        <a href="{{ path('cart_validate') }}" class="btn btn-block mb-20 cart-primary-action">
+                                            <i class="ti-check"></i>
+                                            <span class="cart-primary-action-text">
+                                                {% if stripe_enabled %}
+                                                    Valider et payer
+                                                {% else %}
+                                                    Valider et appeler le magasin
+                                                {% endif %}
+                                            </span>
+                                        </a>
+
+                                        <form method="post" action="{{ path('cart_empty') }}" style="margin:0;">
+                                            <input type="hidden" name="_csrf_token" value="{{ csrf_token('cart_empty') }}">
+                                            <button type="submit" class="border-btn btn-block cart-danger-action" style="border:0; background:transparent;">
+                                                <i class="ti-trash"></i> Vider le Panier
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <style>
+        /* Cart Page Styles */
+        .cart-area {
+            background: #fff;
+        }
+
+        .cart-page-title {
+            text-align: center;
+            padding-bottom: 30px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .cart-page-title h2 {
+            font-size: 42px;
+            font-weight: 600;
+            color: #1D2547;
+            margin-bottom: 10px;
+        }
+
+        .cart-page-title p {
+            color: #646D77;
+            font-size: 16px;
+        }
+
+        /* Empty Cart */
+        .empty-cart-wrapper {
+            padding: 80px 20px;
+            background: #f7f7fd;
+            border-radius: 8px;
+        }
+
+        .empty-cart-wrapper h3 {
+            color: #1D2547;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .empty-cart-wrapper p {
+            color: #646D77;
+            font-size: 16px;
+        }
+
+        /* Cart Table */
+        .cart-table-wrapper {
+            margin: 50px 0;
+            background: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .cart-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .cart-table thead {
+            background: #f7f7fd;
+            border-bottom: 2px solid #e5e5e5;
+        }
+
+        .cart-table thead th {
+            padding: 20px 15px;
+            text-align: left;
+            font-size: 14px;
+            font-weight: 600;
+            color: #1D2547;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .cart-table tbody tr {
+            border-bottom: 1px solid #f0f0f0;
+            transition: background 0.3s ease;
+        }
+
+        .cart-table tbody tr:hover {
+            background: #f7f7fd;
+        }
+
+        .cart-table tbody td {
+            padding: 25px 15px;
+            vertical-align: middle;
+
+        .cart-product-preview {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .cart-product-thumb {
+            display: inline-block;
+            width: 56px;
+            height: 56px;
+            border-radius: 6px;
+            overflow: hidden;
+            background: #f7f7fd;
+        }
+
+        .cart-product-thumb img {
+            width: 56px;
+            height: 56px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .cart-product-thumb-placeholder {
+            width: 56px;
+            height: 56px;
+            background: #f7f7fd;
+        }
+
+        .product-item-name a {
+            color: inherit;
+        }
+            color: #646D77;
+            font-size: 14px;
+        }
+
+        .product-name {
+            font-weight: 500;
+            color: #1D2547;
+        }
+
+        .product-item-name {
+            max-width: 250px;
+            word-wrap: break-word;
+        }
+
+        .price-amount {
+            font-weight: 600;
+            color: #1D2547;
+            font-size: 16px;
+        }
+
+        /* Quantity Control */
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            background: #f7f7fd;
+            border-radius: 4px;
+            width: fit-content;
+            border: 1px solid #e5e5e5;
+        }
+
+        .qty-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 35px;
+            height: 35px;
+            color: #9F78FF;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: transparent;
+        }
+
+        .qty-btn:hover {
+            background: #9F78FF;
+            color: #fff;
+        }
+
+        .qty-input {
+            width: 50px;
+            text-align: center;
+            border: none;
+            background: transparent;
+            font-weight: 600;
+            color: #1D2547;
+            padding: 0 10px;
+        }
+
+        .qty-input:focus {
+            outline: none;
+        }
+
+        .total-amount {
+            font-weight: 600;
+            color: #9F78FF;
+            font-size: 16px;
+        }
+
+        /* Delete Button */
+        .delete-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: #fff3f3;
+            color: #ff6b6b;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .delete-btn:hover {
+            background: #ff6b6b;
+            color: #fff;
+        }
+
+        /* Continue Shopping */
+        .continue-shopping-wrapper {
+            padding: 20px 0;
+        }
+
+        /* Cart Summary Box */
+        .cart-summary-box {
+            background: #f7f7fd;
+            padding: 30px;
+            border-radius: 8px;
+            border: 1px solid #e5e5e5;
+        }
+
+        .cart-summary-box h3 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1D2547;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e5e5e5;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            font-size: 14px;
+            color: #646D77;
+        }
+
+        .summary-label {
+            font-weight: 500;
+        }
+
+        .summary-value {
+            color: #1D2547;
+            font-weight: 500;
+        }
+
+        .summary-divider {
+            border-top: 1px solid #e5e5e5;
+            margin: 15px 0;
+        }
+
+        .summary-total {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 0;
+            font-size: 16px;
+            font-weight: 600;
+            color: #1D2547;
+        }
+
+        .summary-amount {
+            color: #9F78FF;
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        /* Cart Actions */
+        .cart-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .btn-block {
+            display: block;
+            width: 100%;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .cart-table-wrapper {
+                margin: 30px 0;
+            }
+
+            .cart-table thead {
+                font-size: 12px;
+            }
+
+            .cart-table tbody td {
+                padding: 15px 8px;
+                font-size: 13px;
+            }
+
+            .product-item-name {
+                max-width: 150px;
+            }
+
+            .cart-page-title h2 {
+                font-size: 28px;
+            }
+
+            .row {
+                flex-direction: column-reverse;
+            }
+
+            .cart-summary-box {
+                margin-bottom: 30px;
+            }
+        }
+
+        .cart-actions .cart-primary-action {
+            background: linear-gradient(135deg, #9F78FF 0%, #8a5fff 100%);
+            border: none;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            line-height: 1.2;
+            white-space: normal;
+            text-align: center;
+        }
+
+        .cart-actions .cart-primary-action i {
+            line-height: 1;
+        }
+
+        .cart-actions .cart-primary-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(159, 120, 255, 0.3);
+        }
+
+        /* Cart empty button: keep the existing intent without inline JS */
+        .cart-actions .cart-danger-action {
+            border: 2px solid #dc3545;
+            color: #dc3545;
+            background: white;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            line-height: 1.2;
+        }
+
+        .cart-actions .cart-danger-action:hover {
+            background: #dc3545;
+            color: white;
+        }
+    </style>
+{% endblock %}

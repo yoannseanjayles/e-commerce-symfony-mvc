@@ -1,0 +1,775 @@
+{#
+  Variant GPT panel inspired by Product GPT panel.
+  Goal: improve ONLY the current variant (fields) + propose images tagged to the variant color.
+#}
+
+{#
+    Injected into EasyAdmin ProductVariant new/edit forms (including embedded_* inside Products form).
+    Mirrors the Product GPT panel UX and allows regenerating variant images directly from the
+    Products "Déclinaisons" list, with preview.
+#}
+
+{% set isEditLike = pageName is defined and (pageName == 'edit' or pageName == 'embedded_edit') %}
+
+<div class="content-panel" id="gpt-enhance-panel"
+    data-endpoint="{{ path('admin_product_variant_gpt_suggest') }}"
+    data-csrf="{{ csrf_token('admin_product_variant_gpt_suggest') }}"
+    data-fields-endpoint="{{ path('admin_product_variant_gpt_suggest_fields') }}"
+    data-fields-csrf="{{ csrf_token('admin_product_variant_gpt_suggest_fields') }}"
+    data-images-suggest-endpoint="{{ path('admin_product_variant_gpt_suggest_images') }}"
+    data-images-suggest-csrf="{{ csrf_token('admin_product_variant_gpt_suggest_images') }}"
+        data-is-edit="{{ isEditLike ? '1' : '0' }}"
+    data-variant-id="{{ entity.primaryKeyValue|default('') }}"
+    data-product-id="{{ entity.instance.products.id|default('') }}"
+    data-product-name="{{ entity.instance.products.name|default('')|e('html_attr') }}"
+    data-product-brand="{{ entity.instance.products.brand|default('')|e('html_attr') }}"
+    data-product-type="{{ entity.instance.products.productType|default('')|e('html_attr') }}"
+        data-images-endpoint="{{ isEditLike and entity.instance.products.id is defined ? path('admin_product_ai_images_add', {id: entity.instance.products.id|default(0)}) : '' }}"
+    data-images-csrf="{{ csrf_token('admin_product_ai_images_add') }}"
+    data-images-stage-endpoint="{{ path('admin_product_ai_images_stage') }}"
+        data-images-stage-csrf="{{ csrf_token('admin_product_ai_images_stage') }}"
+        data-variant-images-endpoint="{{ isEditLike and entity.instance.products.id is defined ? path('admin_product_ai_variant_images_add', {id: entity.instance.products.id|default(0)}) : '' }}"
+        data-variant-images-csrf="{{ csrf_token('admin_product_ai_variant_images_add') }}">
+    <div class="content-panel-header">
+        <h3 class="content-panel-title">✨ Améliorer avec GPT</h3>
+    </div>
+    <div class="content-panel-body">
+        <div class="row g-2 align-items-end">
+            <div class="col-12 col-md-4">
+                <label class="form-label" for="gpt-aggressiveness">⚙️ Niveau d’agressivité</label>
+                <select class="form-select" id="gpt-aggressiveness">
+                    <option value="light">léger</option>
+                    <option value="medium" selected>moyen</option>
+                    <option value="strong">fort</option>
+                </select>
+            </div>
+            <div class="col-12 col-md-4">
+                <div class="form-check mt-4">
+                    <input class="form-check-input" type="checkbox" value="1" id="gpt-web-search">
+                    <label class="form-check-label" for="gpt-web-search">🔎 Rechercher sur le web</label>
+                </div>
+            </div>
+            <div class="col-12 col-md-2">
+                <label class="form-label" for="gpt-max-images">🖼️ Nb images (suggestion)</label>
+                <input class="form-control" id="gpt-max-images" type="number" min="1" max="30" value="20" />
+            </div>
+            <div class="col-12 col-md-2">
+                <label class="form-label" for="gpt-variant-image-count">🎨 Nb images / variante</label>
+                <input class="form-control" id="gpt-variant-image-count" type="number" min="1" max="10" value="1" />
+            </div>
+            <div class="col-12 col-md-12 text-md-end">
+                <button type="button" class="btn btn-primary" id="gpt-enhance-btn">✨ Améliorer avec GPT</button>
+            </div>
+        </div>
+
+        <div class="mt-3" id="gpt-enhance-status" style="display:none;"></div>
+
+        <div class="mt-2" id="gpt-variant-image-tools" style="display:none;">
+            <div class="d-flex gap-2 align-items-center flex-wrap">
+                <button type="button" class="btn btn-outline-success btn-sm" id="gpt-regenerate-variant-image">🎨 Régénérer image (variante)</button>
+                <div class="small text-muted">Met à jour l'image primaire de la variante, avec aperçu.</div>
+            </div>
+            <div class="mt-2" id="gpt-variant-image-preview" style="display:none;">
+                <div class="d-flex align-items-center gap-2">
+                    <img id="gpt-variant-image-preview-img" alt="Aperçu" style="width:72px;height:72px;object-fit:cover;border-radius:8px;border:1px solid rgba(0,0,0,.1);" />
+                    <div class="small">
+                        <div><a id="gpt-variant-image-preview-link" href="#" target="_blank" rel="noopener noreferrer">Ouvrir</a></div>
+                        <div class="text-muted" id="gpt-variant-image-preview-src"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-3" id="gpt-diff" style="display:none;">
+            <div class="d-flex gap-2 flex-wrap mb-2">
+                <button type="button" class="btn btn-outline-primary btn-sm" id="gpt-apply-empty">Appliquer uniquement les champs vides</button>
+                <button type="button" class="btn btn-outline-primary btn-sm" id="gpt-apply-selected">Appliquer sélection</button>
+                <button type="button" class="btn btn-outline-secondary btn-sm" id="gpt-copy-description">Copier la description</button>
+                <button type="button" class="btn btn-outline-success btn-sm" id="gpt-download-images" style="display:none;">Télécharger et ajouter ces images</button>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-sm">
+                    <thead>
+                    <tr>
+                        <th style="width: 32px;"></th>
+                        <th>Champ</th>
+                        <th>Avant</th>
+                        <th>Proposition</th>
+                    </tr>
+                    </thead>
+                    <tbody id="gpt-diff-rows"></tbody>
+                </table>
+            </div>
+
+            <div class="mt-2">
+                <div class="small text-muted" id="gpt-sources"></div>
+                <div class="small text-muted" id="gpt-notes"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function () {
+    const panel = document.getElementById('gpt-enhance-panel');
+    if (!panel) return;
+
+    const fieldsEndpoint = panel.dataset.fieldsEndpoint || panel.dataset.endpoint;
+    const fieldsCsrf = panel.dataset.fieldsCsrf || panel.dataset.csrf;
+    const imagesSuggestEndpoint = (panel.dataset.imagesSuggestEndpoint || '').toString();
+    const imagesSuggestCsrf = (panel.dataset.imagesSuggestCsrf || '').toString();
+
+    const isEdit = panel.dataset.isEdit === '1';
+
+    const productId = (panel.dataset.productId || '').toString();
+    const productName = (panel.dataset.productName || '').toString();
+    const productBrand = (panel.dataset.productBrand || '').toString();
+    const productType = (panel.dataset.productType || '').toString();
+
+    const imagesEndpoint = (panel.dataset.imagesEndpoint || '').toString();
+    const imagesCsrf = (panel.dataset.imagesCsrf || '').toString();
+    const imagesStageEndpoint = (panel.dataset.imagesStageEndpoint || '').toString();
+    const imagesStageCsrf = (panel.dataset.imagesStageCsrf || '').toString();
+    const variantImagesEndpoint = (panel.dataset.variantImagesEndpoint || '').toString();
+    const variantImagesCsrf = (panel.dataset.variantImagesCsrf || '').toString();
+
+    const btn = document.getElementById('gpt-enhance-btn');
+    const statusEl = document.getElementById('gpt-enhance-status');
+    const diffEl = document.getElementById('gpt-diff');
+    const rowsEl = document.getElementById('gpt-diff-rows');
+    const sourcesEl = document.getElementById('gpt-sources');
+    const notesEl = document.getElementById('gpt-notes');
+
+    const aggressivenessEl = document.getElementById('gpt-aggressiveness');
+    const webSearchEl = document.getElementById('gpt-web-search');
+    const maxImagesEl = document.getElementById('gpt-max-images');
+    const variantImageCountEl = document.getElementById('gpt-variant-image-count');
+
+    const applyEmptyBtn = document.getElementById('gpt-apply-empty');
+    const applySelectedBtn = document.getElementById('gpt-apply-selected');
+    const copyDescriptionBtn = document.getElementById('gpt-copy-description');
+    const downloadImagesBtn = document.getElementById('gpt-download-images');
+
+    const variantImageTools = document.getElementById('gpt-variant-image-tools');
+    const regenerateVariantImageBtn = document.getElementById('gpt-regenerate-variant-image');
+    const variantImagePreview = document.getElementById('gpt-variant-image-preview');
+    const variantImagePreviewImg = document.getElementById('gpt-variant-image-preview-img');
+    const variantImagePreviewLink = document.getElementById('gpt-variant-image-preview-link');
+    const variantImagePreviewSrc = document.getElementById('gpt-variant-image-preview-src');
+
+    if (!fieldsEndpoint || !fieldsCsrf || !btn || !statusEl || !diffEl || !rowsEl || !sourcesEl || !notesEl || !aggressivenessEl || !webSearchEl || !applyEmptyBtn || !applySelectedBtn || !copyDescriptionBtn || !downloadImagesBtn || !maxImagesEl || !variantImageCountEl) return;
+
+    function clampInt(v, min, max, fallback) {
+        const n = parseInt((v ?? '').toString(), 10);
+        if (isNaN(n)) return fallback;
+        return Math.max(min, Math.min(max, n));
+    }
+
+    function getMainForm() {
+        return document.querySelector('form.ea-new-form')
+            || document.querySelector('form.ea-edit-form')
+            || document.querySelector('form[name="ProductVariant"]')
+            || document.querySelector('form');
+    }
+
+    function setStagedImagesToken(token) {
+        const form = getMainForm();
+        if (!form) return;
+
+        let input = form.querySelector('input[name="gpt_staged_images_token"]');
+        if (!input) {
+            input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'gpt_staged_images_token';
+            form.appendChild(input);
+        }
+        input.value = (token || '').toString();
+    }
+
+    const fieldSelectors = {
+        name: '[name$="[name]"]',
+        slug: '[name$="[slug]"]',
+        sku: '[name$="[sku]"]',
+        barcode: '[name$="[barcode]"]',
+        color: '[name$="[color]"]',
+        colorCode: '[name$="[colorCode]"]',
+        size: '[name$="[size]"]',
+        lensWidthMm: '[name$="[lensWidthMm]"]',
+        bridgeWidthMm: '[name$="[bridgeWidthMm]"]',
+        templeLengthMm: '[name$="[templeLengthMm]"]',
+        lensHeightMm: '[name$="[lensHeightMm]"]',
+        price: '[name$="[price]"]',
+        stock: '[name$="[stock]"]'
+    };
+
+    const fieldMeta = {
+        name: { type: 'text' },
+        slug: { type: 'text' },
+        sku: { type: 'text' },
+        barcode: { type: 'text' },
+        color: { type: 'select' },
+        colorCode: { type: 'text' },
+        size: { type: 'text' },
+        lensWidthMm: { type: 'int' },
+        bridgeWidthMm: { type: 'int' },
+        templeLengthMm: { type: 'int' },
+        lensHeightMm: { type: 'int' },
+        price: { type: 'price' },
+        stock: { type: 'int' }
+    };
+
+    function qs(selector) {
+        return document.querySelector(selector);
+    }
+
+    function getFieldValue(field) {
+        const el = qs(fieldSelectors[field]);
+        if (!el) return '';
+        if (el.tagName === 'SELECT') {
+            const opt = el.options && el.selectedIndex >= 0 ? el.options[el.selectedIndex] : null;
+            return opt ? (opt.textContent || '').toString() : '';
+        }
+        return (el.value || '').toString();
+    }
+
+    function getFieldSendValue(field) {
+        const el = qs(fieldSelectors[field]);
+        if (!el) return '';
+        if (el.tagName === 'SELECT') {
+            // Send label (not raw value) so GPT proposes something we can map back by label.
+            return getFieldValue(field);
+        }
+        return (el.value || '').toString();
+    }
+
+    function setFieldValue(field, value) {
+        const el = qs(fieldSelectors[field]);
+        if (!el) return;
+        if (el.tagName === 'SELECT') {
+            const target = (value || '').toString().trim().toLowerCase();
+            if (target !== '') {
+                for (const opt of Array.from(el.options || [])) {
+                    const label = (opt.textContent || '').toString().trim().toLowerCase();
+                    if (label === target) {
+                        el.value = opt.value;
+                        el.dispatchEvent(new Event('change', { bubbles: true }));
+                        return;
+                    }
+                }
+                el.value = value;
+            }
+        } else {
+            el.value = value;
+        }
+        el.dispatchEvent(new Event('input', { bubbles: true }));
+        el.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+
+    function isBlank(value) {
+        return !value || value.trim() === '';
+    }
+
+    function showStatus(kind, text) {
+        statusEl.className = 'alert alert-' + kind;
+        statusEl.textContent = text;
+        statusEl.style.display = 'block';
+    }
+
+    function clearStatus() {
+        statusEl.style.display = 'none';
+        statusEl.textContent = '';
+        statusEl.className = '';
+    }
+
+    function escapeText(value) {
+        const div = document.createElement('div');
+        div.textContent = value;
+        return div.innerHTML;
+    }
+
+    let lastSuggestion = null;
+    let mergedSources = [];
+    let mergedNotes = [];
+
+    const variantIdFromDataset = (panel.dataset.variantId || '').toString();
+    const productIdFromDataset = (panel.dataset.productId || '').toString();
+
+    if (variantImageTools && regenerateVariantImageBtn && variantImagePreview && variantImagePreviewImg && variantImagePreviewLink && variantImagePreviewSrc) {
+        const hasIds = productIdFromDataset !== '' && variantIdFromDataset !== '';
+        if (isEdit && variantImagesEndpoint && variantImagesCsrf && hasIds) {
+            variantImageTools.style.display = 'block';
+        }
+    }
+
+    function updateMetaDisplay() {
+        sourcesEl.textContent = mergedSources.length ? ('sources: ' + mergedSources.join(' | ')) : 'sources: (aucune)';
+        notesEl.textContent = mergedNotes.length ? ('notes: ' + mergedNotes.join(' | ')) : 'notes: (aucune)';
+    }
+
+    function mergeMeta(payload) {
+        const sources = Array.isArray(payload && payload.sources) ? payload.sources : [];
+        const notes = Array.isArray(payload && payload.notes) ? payload.notes : [];
+
+        for (const s of sources) {
+            if (typeof s === 'string' && !isBlank(s) && !mergedSources.includes(s)) {
+                mergedSources.push(s);
+            }
+        }
+        for (const n of notes) {
+            if (typeof n === 'string' && !isBlank(n)) {
+                mergedNotes.push(n);
+            }
+        }
+        updateMetaDisplay();
+    }
+
+    function createProposedInput(field, value) {
+        const meta = fieldMeta[field] || { type: 'text' };
+        const v = (value ?? '').toString();
+
+        const input = document.createElement('input');
+        input.className = 'form-control form-control-sm gpt-proposed-input';
+        input.value = v;
+
+        if (meta.type === 'price' || field === 'price') {
+            input.type = 'number';
+            input.step = '0.01';
+            input.min = '0';
+        } else if (meta.type === 'int') {
+            input.type = 'number';
+            input.step = '1';
+            input.min = '0';
+        } else {
+            input.type = 'text';
+        }
+
+        return input;
+    }
+
+    function clearImageRows() {
+        for (const tr of Array.from(rowsEl.querySelectorAll('tr[data-section="images"], tr[data-section="images-header"], tr[data-section="images-empty"]'))) {
+            tr.remove();
+        }
+    }
+
+    function renderFields(payload) {
+        lastSuggestion = lastSuggestion || {};
+        lastSuggestion.suggested = payload && payload.suggested ? payload.suggested : {};
+        lastSuggestion.confidence = payload && payload.confidence ? payload.confidence : {};
+
+        rowsEl.innerHTML = '';
+        clearImageRows();
+        downloadImagesBtn.style.display = 'none';
+
+        const suggested = lastSuggestion.suggested || {};
+        const confidence = lastSuggestion.confidence || {};
+
+        const fields = Object.keys(fieldSelectors);
+        for (const field of fields) {
+            const before = getFieldValue(field);
+            const proposed = suggested[field] ?? '';
+            const different = (proposed ?? '').toString().trim() !== '' && before.trim() !== (proposed ?? '').toString().trim();
+            const conf = typeof confidence[field] === 'number' ? confidence[field] : 0;
+
+            const tr = document.createElement('tr');
+            tr.dataset.field = field;
+
+            const tdCheck = document.createElement('td');
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.className = 'form-check-input gpt-field-check';
+            checkbox.checked = !!different;
+            tdCheck.appendChild(checkbox);
+
+            const tdField = document.createElement('td');
+            tdField.innerHTML = '<div class="fw-semibold">' + escapeText(field) + '</div><div class="small text-muted">confidence: ' + conf.toFixed(2) + '</div>';
+
+            const tdBefore = document.createElement('td');
+            tdBefore.style.whiteSpace = 'pre-wrap';
+            tdBefore.textContent = before;
+
+            const tdProposed = document.createElement('td');
+            tdProposed.appendChild(createProposedInput(field, proposed));
+
+            tr.appendChild(tdCheck);
+            tr.appendChild(tdField);
+            tr.appendChild(tdBefore);
+            tr.appendChild(tdProposed);
+            rowsEl.appendChild(tr);
+        }
+
+        diffEl.style.display = 'block';
+    }
+
+    function renderImages(payload) {
+        clearImageRows();
+
+        const images = Array.isArray(payload && payload.images) ? payload.images : [];
+        let hasImageRows = false;
+
+        if (images.length) {
+            for (const img of images) {
+                const url = img && img.url ? img.url.toString() : '';
+                const label = img && img.label ? img.label.toString() : '';
+                const colorTag = (getFieldValue('color') || getFieldValue('name') || '').toString();
+                if (!url || isBlank(url)) continue;
+
+                if (!hasImageRows) {
+                    const spacer = document.createElement('tr');
+                    spacer.dataset.section = 'images-header';
+                    spacer.innerHTML = '<td colspan="4" class="small text-muted">Images proposées (coche puis clique “Télécharger et ajouter ces images”)</td>';
+                    rowsEl.appendChild(spacer);
+                }
+
+                const tr = document.createElement('tr');
+                tr.dataset.section = 'images';
+                tr.dataset.url = url;
+                if (colorTag && !isBlank(colorTag)) {
+                    tr.dataset.colorTag = colorTag;
+                }
+
+                const tdCheck = document.createElement('td');
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.className = 'form-check-input gpt-image-check';
+                checkbox.checked = true;
+                tdCheck.appendChild(checkbox);
+
+                const tdField = document.createElement('td');
+                tdField.innerHTML = '<div class="fw-semibold">image</div>' + (label ? ('<div class="small text-muted">' + escapeText(label) + '</div>') : '');
+
+                const tdBefore = document.createElement('td');
+                tdBefore.textContent = '';
+
+                const tdProposed = document.createElement('td');
+
+                const preview = document.createElement('img');
+                preview.src = url;
+                preview.alt = label || 'Aperçu';
+                preview.loading = 'lazy';
+                preview.referrerPolicy = 'no-referrer';
+                preview.style.width = '44px';
+                preview.style.height = '44px';
+                preview.style.objectFit = 'cover';
+                preview.style.borderRadius = '6px';
+                preview.style.border = '1px solid rgba(0,0,0,.1)';
+                preview.addEventListener('error', () => {
+                    preview.style.display = 'none';
+                });
+
+                const link = document.createElement('a');
+                link.href = url;
+                link.target = '_blank';
+                link.rel = 'noopener noreferrer';
+                link.textContent = url;
+
+                const wrapper = document.createElement('div');
+                wrapper.className = 'd-flex align-items-center gap-2';
+                wrapper.appendChild(preview);
+                wrapper.appendChild(link);
+
+                tdProposed.appendChild(wrapper);
+
+                tr.appendChild(tdCheck);
+                tr.appendChild(tdField);
+                tr.appendChild(tdBefore);
+                tr.appendChild(tdProposed);
+                rowsEl.appendChild(tr);
+
+                hasImageRows = true;
+            }
+        }
+
+        if (!hasImageRows) {
+            const spacer = document.createElement('tr');
+            spacer.dataset.section = 'images-empty';
+            spacer.innerHTML = '<td colspan="4" class="small text-muted">Images proposées : (aucune) — active “🔎 Rechercher sur le web” ou renseigne un code-barres pour améliorer les résultats.</td>';
+            rowsEl.appendChild(spacer);
+        }
+
+        downloadImagesBtn.style.display = hasImageRows ? 'inline-block' : 'none';
+    }
+
+    function getSelectedImages() {
+        const rows = Array.from(rowsEl.querySelectorAll('tr'));
+        const images = [];
+        for (const row of rows) {
+            if (!row.dataset.url) continue;
+            const checkbox = row.querySelector('.gpt-image-check');
+            if (checkbox && checkbox.checked) {
+                const url = (row.dataset.url || '').toString();
+                const colorTag = (row.dataset.colorTag || '').toString();
+                if (!isBlank(url)) {
+                    images.push({
+                        url: url,
+                        colorTag: !isBlank(colorTag) ? colorTag : null
+                    });
+                }
+            }
+        }
+        return images;
+    }
+
+    function getSelectedRows() {
+        const rows = Array.from(rowsEl.querySelectorAll('tr'));
+        const selected = [];
+        for (const row of rows) {
+            const checkbox = row.querySelector('.gpt-field-check');
+            if (checkbox && checkbox.checked) {
+                selected.push(row);
+            }
+        }
+        return selected;
+    }
+
+    applyEmptyBtn.addEventListener('click', function () {
+        if (!lastSuggestion) return;
+        for (const field of Object.keys(fieldSelectors)) {
+            const current = getFieldValue(field);
+            const row = rowsEl.querySelector('tr[data-field="' + field + '"]');
+            const input = row ? row.querySelector('.gpt-proposed-input') : null;
+            const proposed = input && input.value !== undefined ? input.value.toString() : '';
+            if (isBlank(current) && !isBlank(proposed)) {
+                setFieldValue(field, proposed);
+            }
+        }
+        showStatus('success', 'Champs vides appliqués (rien n\'est sauvegardé tant que vous ne cliquez pas sur Save).');
+    });
+
+    applySelectedBtn.addEventListener('click', function () {
+        const rows = getSelectedRows();
+        for (const row of rows) {
+            const field = row.dataset.field;
+            const input = row.querySelector('.gpt-proposed-input');
+            const proposed = input && input.value !== undefined ? input.value.toString() : '';
+            if (field && !isBlank(proposed)) {
+                setFieldValue(field, proposed);
+            }
+        }
+        showStatus('success', 'Sélection appliquée (rien n\'est sauvegardé tant que vous ne cliquez pas sur Save).');
+    });
+
+    copyDescriptionBtn.addEventListener('click', async function () {
+        showStatus('warning', 'La variante n\'a pas de champ description.');
+    });
+
+    btn.addEventListener('click', async function () {
+        clearStatus();
+        diffEl.style.display = 'none';
+
+        btn.disabled = true;
+        btn.textContent = 'Génération…';
+
+        const colorSelect = qs(fieldSelectors.color);
+        const colorOptions = colorSelect ? Array.from(colorSelect.options || []).map(o => (o.textContent || '').toString().trim()).filter(Boolean) : [];
+
+        const baseFields = {
+            name: getFieldSendValue('name'),
+            slug: getFieldSendValue('slug'),
+            sku: getFieldSendValue('sku'),
+            barcode: getFieldSendValue('barcode'),
+            color: getFieldSendValue('color'),
+            colorCode: getFieldSendValue('colorCode'),
+            size: getFieldSendValue('size'),
+            lensWidthMm: getFieldSendValue('lensWidthMm'),
+            bridgeWidthMm: getFieldSendValue('bridgeWidthMm'),
+            templeLengthMm: getFieldSendValue('templeLengthMm'),
+            lensHeightMm: getFieldSendValue('lensHeightMm'),
+            price: (qs(fieldSelectors.price) && qs(fieldSelectors.price).value !== undefined) ? qs(fieldSelectors.price).value : '',
+            stock: (qs(fieldSelectors.stock) && qs(fieldSelectors.stock).value !== undefined) ? qs(fieldSelectors.stock).value : '',
+            colorOptions: colorOptions
+        };
+
+        const baseOptions = {
+            aggressiveness: aggressivenessEl.value,
+            webSearch: !!webSearchEl.checked,
+            language: 'fr',
+            tone: 'luxury',
+            maxImages: clampInt(maxImagesEl.value, 1, 30, 20)
+        };
+
+        const product = {
+            id: productId,
+            name: productName,
+            brand: productBrand,
+            productType: productType
+        };
+
+        mergedSources = [];
+        mergedNotes = [];
+        lastSuggestion = { suggested: {}, confidence: {}, images: [] };
+        updateMetaDisplay();
+
+        try {
+            showStatus('info', 'Génération de la variante…');
+
+            const res = await fetch(fieldsEndpoint, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ _csrf: fieldsCsrf, fields: baseFields, product: product, options: baseOptions })
+            });
+
+            const data = await res.json().catch(() => null);
+            if (!res.ok) {
+                const msg = data && (data.message || data.error) ? (data.message || data.error) : ('HTTP ' + res.status);
+                showStatus('danger', msg);
+                return;
+            }
+
+            mergeMeta(data);
+            renderFields(data);
+
+            const imagesPromise = (imagesSuggestEndpoint && imagesSuggestCsrf)
+                ? fetch(imagesSuggestEndpoint, {
+                    method: 'POST',
+                    headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ _csrf: imagesSuggestCsrf, fields: baseFields, product: product, options: baseOptions })
+                }).then(async r => ({ ok: r.ok, status: r.status, data: await r.json().catch(() => null) }))
+                : Promise.resolve(null);
+
+            showStatus('info', 'Chargement des images…');
+
+            const imgRes = await imagesPromise;
+            if (imgRes && imgRes.ok && imgRes.data) {
+                mergeMeta(imgRes.data);
+                lastSuggestion.images = Array.isArray(imgRes.data.images) ? imgRes.data.images : [];
+                renderImages({ images: lastSuggestion.images });
+            } else {
+                renderImages({ images: [] });
+            }
+
+            showStatus('success', 'Suggestion terminée.');
+        } catch (e) {
+            showStatus('danger', 'Erreur réseau lors de la suggestion.');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = '✨ Améliorer avec GPT';
+        }
+    });
+
+    downloadImagesBtn.addEventListener('click', async function () {
+        const images = getSelectedImages();
+        if (!images.length) {
+            showStatus('warning', 'Aucune image sélectionnée.');
+            return;
+        }
+        downloadImagesBtn.disabled = true;
+        try {
+            const targetEndpoint = (isEdit && imagesEndpoint) ? imagesEndpoint : imagesStageEndpoint;
+            const targetCsrf = (isEdit && imagesCsrf) ? imagesCsrf : imagesStageCsrf;
+            if (!targetEndpoint || !targetCsrf) {
+                showStatus('danger', 'Endpoint images non configuré.');
+                return;
+            }
+
+            const res = await fetch(targetEndpoint, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ _csrf: targetCsrf, images: images })
+            });
+            const data = await res.json().catch(() => null);
+            if (!res.ok) {
+                const msg = data && (data.message || data.error) ? (data.message || data.error) : ('HTTP ' + res.status);
+                showStatus('danger', msg);
+                return;
+            }
+
+            if (isEdit) {
+                const added = data && typeof data.added === 'number' ? data.added : 0;
+                showStatus('success', 'Images ajoutées: ' + added + ' (rafraîchis la page pour voir les thumbnails).');
+            } else {
+                const token = data && data.token ? data.token.toString() : '';
+                if (token) {
+                    setStagedImagesToken(token);
+                }
+                const downloaded = data && Array.isArray(data.downloaded) ? data.downloaded.length : 0;
+                showStatus('success', 'Images téléchargées: ' + downloaded + '. Elles seront ajoutées lors de l\'enregistrement de la variante (Save).');
+            }
+        } catch (e) {
+            showStatus('danger', 'Erreur réseau lors de l\'ajout des images.');
+        } finally {
+            downloadImagesBtn.disabled = false;
+        }
+    });
+
+    if (regenerateVariantImageBtn) {
+        regenerateVariantImageBtn.addEventListener('click', async function () {
+            if (!isEdit || !variantImagesEndpoint || !variantImagesCsrf) {
+                showStatus('warning', 'Disponible uniquement quand le produit/la variante sont déjà sauvegardés.');
+                return;
+            }
+
+            const variantId = parseInt(variantIdFromDataset || '0', 10);
+            const productId = parseInt(productIdFromDataset || '0', 10);
+            if (!variantId || !productId) {
+                showStatus('warning', 'Variante/produit non sauvegardé(s).');
+                return;
+            }
+
+            regenerateVariantImageBtn.disabled = true;
+            const oldLabel = regenerateVariantImageBtn.textContent;
+            regenerateVariantImageBtn.textContent = 'Génération…';
+            clearStatus();
+
+            try {
+                const payload = {
+                    _csrf: variantImagesCsrf,
+                    variant: {
+                        id: variantId,
+                        name: getFieldSendValue('name'),
+                        sku: getFieldSendValue('sku'),
+                        barcode: getFieldSendValue('barcode'),
+                        color: getFieldSendValue('color'),
+                        size: getFieldSendValue('size')
+                    },
+                    options: {
+                        webSearch: !!webSearchEl.checked,
+                        aggressiveness: aggressivenessEl.value,
+                        variantImageCount: clampInt(variantImageCountEl.value, 1, 10, 1)
+                    }
+                };
+
+                showStatus('info', 'Génération image variante…');
+
+                const res = await fetch(variantImagesEndpoint, {
+                    method: 'POST',
+                    headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await res.json().catch(() => null);
+                if (!res.ok) {
+                    const msg = data && (data.message || data.error) ? (data.message || data.error) : ('HTTP ' + res.status);
+                    showStatus('danger', msg);
+                    return;
+                }
+
+                if (data && data.ok && data.image && data.image.localPath) {
+                    const localPath = data.image.localPath.toString();
+                    const srcUrl = data.image.sourceUrl ? data.image.sourceUrl.toString() : '';
+                    variantImagePreviewImg.src = localPath;
+                    variantImagePreviewLink.href = localPath;
+                    variantImagePreviewSrc.textContent = srcUrl ? ('Source: ' + srcUrl) : '';
+                    variantImagePreview.style.display = 'block';
+                    showStatus('success', 'Image de variante mise à jour. (Rafraîchis la page pour voir le champ Image (variante) se mettre à jour)');
+                } else {
+                    const msg = data && (data.error || data.message) ? (data.error || data.message) : 'Aucune image trouvée.';
+                    showStatus('warning', msg);
+                }
+            } catch (e) {
+                showStatus('danger', 'Erreur réseau lors de la génération de l\'image de variante.');
+            } finally {
+                regenerateVariantImageBtn.disabled = false;
+                regenerateVariantImageBtn.textContent = oldLabel;
+            }
+        });
+    }
+})();
+</script>

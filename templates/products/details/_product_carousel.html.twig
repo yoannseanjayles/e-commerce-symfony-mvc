@@ -1,0 +1,16 @@
+<div class="product__details__pic">
+    <div class="product__details__pic__left product__thumb nice-scroll">
+        {% for i in 1..4 %}
+        <a class="pt {% if i == 1 %}active{% endif %}" href="#product-{{ i }}">
+            <img src="{{ asset('assets/img/gallery/arrival1.png') }}" alt="{{ product.name }}">
+        </a>
+        {% endfor %}
+    </div>
+    <div class="product__details__slider__content">
+        <div class="product__details__pic__slider owl-carousel">
+            {% for i in 1..4 %}
+            <img data-hash="product-{{ i }}" class="product__big__img" src="{{ asset('assets/img/gallery/arrival1.png') }}" alt="{{ product.name }}">
+            {% endfor %}
+        </div>
+    </div>
+</div>

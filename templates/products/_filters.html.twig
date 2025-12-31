@@ -1,0 +1,489 @@
+<!-- Horizontal Draggable Filters -->
+<div class="filters-carousel-wrapper mb-50">
+    <div class="filters-carousel-container">
+        <form method="GET" action="{{ path('products_index') }}" class="filters-carousel" id="filterForm">
+            <!-- Category Filter Card -->
+            <div class="filter-card">
+                <div class="filter-card-icon">
+                    <i class="fas fa-tag"></i>
+                </div>
+                <div class="filter-card-content">
+                    <label class="filter-card-label">Catégorie</label>
+                    <select name="category" class="filter-card-select" onchange="document.getElementById('filterForm').submit()">
+                        <option value="">Toutes</option>
+                        {% for category in categories %}
+                            <option value="{{ category.id }}" {% if categoryFilter == category.id %}selected{% endif %}>{{ category.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <!-- Brand Filter Card -->
+            <div class="filter-card">
+                <div class="filter-card-icon">
+                    <i class="fas fa-trademark"></i>
+                </div>
+                <div class="filter-card-content">
+                    <label class="filter-card-label">Marque</label>
+                    <select name="brand" class="filter-card-select" onchange="document.getElementById('filterForm').submit()">
+                        <option value="">Toutes</option>
+                        {% for brand in brands %}
+                            <option value="{{ brand }}" {% if brandFilter == brand %}selected{% endif %}>{{ brand }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <!-- Color Filter Card -->
+            <div class="filter-card">
+                <div class="filter-card-icon">
+                    <i class="fas fa-palette"></i>
+                </div>
+                <div class="filter-card-content">
+                    <label class="filter-card-label">Couleur</label>
+                    <select name="color" class="filter-card-select" onchange="document.getElementById('filterForm').submit()">
+                        <option value="">Toutes</option>
+                        {% for color in colors %}
+                            <option value="{{ color }}" {% if colorFilter == color %}selected{% endif %}>{{ color_label(color) }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <!-- Stock Filter Card -->
+            <div class="filter-card">
+                <div class="filter-card-icon">
+                    <i class="fas fa-box"></i>
+                </div>
+                <div class="filter-card-content">
+                    <label class="filter-card-label">Stock</label>
+                    <select name="stock" class="filter-card-select" onchange="document.getElementById('filterForm').submit()">
+                        <option value="" {% if not stockFilter %}selected{% endif %}>Tous</option>
+                        <option value="available" {% if stockFilter == 'available' %}selected{% endif %}>En stock</option>
+                        <option value="unavailable" {% if stockFilter == 'unavailable' %}selected{% endif %}>Rupture</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Price Min Card -->
+            <div class="filter-card">
+                <div class="filter-card-icon">
+                    <i class="fas fa-euro-sign"></i>
+                </div>
+                <div class="filter-card-content">
+                    <label class="filter-card-label">Prix min</label>
+                    <input type="number" name="price_min" class="filter-card-input" value="{{ priceMin ?? '' }}" placeholder="0" min="0" step="10">
+                </div>
+            </div>
+
+            <!-- Price Max Card -->
+            <div class="filter-card">
+                <div class="filter-card-icon">
+                    <i class="fas fa-euro-sign"></i>
+                </div>
+                <div class="filter-card-content">
+                    <label class="filter-card-label">Prix max</label>
+                    <input type="number" name="price_max" class="filter-card-input" value="{{ priceMax ?? '' }}" placeholder="999" min="0" step="10">
+                </div>
+            </div>
+
+            <!-- Sort By Card -->
+            <div class="filter-card">
+                <div class="filter-card-icon">
+                    <i class="fas fa-sort"></i>
+                </div>
+                <div class="filter-card-content">
+                    <label class="filter-card-label">Trier</label>
+                    <select name="sort_by" class="filter-card-select" onchange="document.getElementById('filterForm').submit()">
+                        <option value="name" {% if sortBy == 'name' %}selected{% endif %}>Nom</option>
+                        <option value="price" {% if sortBy == 'price' %}selected{% endif %}>Prix</option>
+                        <option value="newest" {% if sortBy == 'newest' %}selected{% endif %}>Nouveau</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Order Card -->
+            <div class="filter-card">
+                <div class="filter-card-icon">
+                    <i class="fas fa-arrows-alt-v"></i>
+                </div>
+                <div class="filter-card-content">
+                    <label class="filter-card-label">Ordre</label>
+                    <select name="sort_order" class="filter-card-select" onchange="document.getElementById('filterForm').submit()">
+                        <option value="ASC" {% if sortOrder == 'ASC' %}selected{% endif %}>↑ Asc</option>
+                        <option value="DESC" {% if sortOrder == 'DESC' %}selected{% endif %}>↓ Desc</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Action Buttons Cards (Desktop only) -->
+            <div class="filter-card filter-card-action desktop-only">
+                <button type="submit" class="filter-action-btn filter-apply-btn">
+                    <i class="ti-check"></i>
+                    <span>Appliquer</span>
+                </button>
+            </div>
+
+            <div class="filter-card filter-card-action desktop-only">
+                <a href="{{ path('products_index') }}" class="filter-action-btn filter-reset-btn">
+                    <i class="ti-reload"></i>
+                    <span>Reset</span>
+                </a>
+            </div>
+        </form>
+        
+        <!-- Mobile Action Buttons (Outside Carousel) -->
+        <div class="mobile-filter-actions">
+            <button type="submit" form="filterForm" class="mobile-filter-btn mobile-apply-btn">
+                <i class="ti-check"></i> Appliquer
+            </button>
+            <a href="{{ path('products_index') }}" class="mobile-filter-btn mobile-reset-btn">
+                <i class="ti-reload"></i> Reset
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Filters Carousel Container */
+    .filters-carousel-wrapper {
+        position: relative;
+        width: 100%;
+        background: linear-gradient(135deg, #f7f7fd 0%, #ffffff 100%);
+        border-radius: 12px;
+        padding: 20px 15px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+        overflow: visible;
+        z-index: 5;
+    }
+
+    .filters-carousel-container {
+        position: relative;
+        overflow: visible;
+    }
+
+    .filters-carousel {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    /* Mobile: Horizontal draggable carousel */
+    @media (max-width: 768px) {
+        .filters-carousel {
+            flex-direction: row;
+            overflow-x: auto;
+            overflow-y: visible;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 10px;
+            cursor: grab;
+
+            /* Hide scrollbars (no direction bars) */
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .filters-carousel:active {
+            cursor: grabbing;
+        }
+
+        .filters-carousel::-webkit-scrollbar {
+            display: none;
+        }
+    }
+
+    /* Ensure the active dropdown renders above the carousel/cards (nice-select plugin) */
+    .filters-carousel .nice-select.open {
+        z-index: 9999;
+    }
+
+    .filters-carousel .nice-select.open .list {
+        z-index: 10000;
+    }
+
+    /* Filter Card */
+    .filter-card {
+        width: 100%;
+        background: white;
+        border-radius: 10px;
+        padding: 15px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 15px;
+        border: 2px solid transparent;
+    }
+
+    /* Mobile only: Compact horizontal cards */
+    @media (max-width: 768px) {
+        .filter-card {
+            min-width: 180px;
+            width: auto;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 10px;
+        }
+    }
+
+    .filter-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 20px rgba(159, 120, 255, 0.2);
+        border-color: #9F78FF;
+    }
+
+    .filter-card-icon {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #9F78FF 0%, #8a5fff 100%);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 18px;
+        box-shadow: 0 4px 12px rgba(159, 120, 255, 0.3);
+    }
+
+    .filter-card-content {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        flex: 1;
+    }
+
+    /* Desktop: Horizontal layout inside card */
+    @media (min-width: 769px) {
+        .filter-card-content {
+            flex-direction: row;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .filter-card-label {
+            min-width: 80px;
+            margin-bottom: 0;
+        }
+    }
+
+    .filter-card-label {
+        font-size: 11px;
+        font-weight: 700;
+        color: #1D2547;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .filter-card-select,
+    .filter-card-input {
+        width: 100%;
+        padding: 8px 10px;
+        border: 1px solid #e5e5e5;
+        border-radius: 6px;
+        font-size: 13px;
+        background: #f9f9fb;
+        color: #1D2547;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .filter-card-select:hover,
+    .filter-card-input:hover {
+        border-color: #9F78FF;
+        background: white;
+    }
+
+    .filter-card-select:focus,
+    .filter-card-input:focus {
+        outline: none;
+        border-color: #9F78FF;
+        background: white;
+        box-shadow: 0 0 0 3px rgba(159, 120, 255, 0.1);
+    }
+
+    /* Action Cards */
+    .filter-card-action {
+        min-width: 120px;
+        justify-content: center;
+        padding: 0;
+        background: transparent;
+        box-shadow: none;
+        border: none;
+    }
+
+    .filter-card-action:hover {
+        transform: none;
+        border: none;
+        box-shadow: none;
+    }
+
+    .filter-action-btn {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 15px;
+        border: none;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .filter-action-btn i {
+        font-size: 20px;
+    }
+
+    .filter-apply-btn {
+        background: linear-gradient(135deg, #9F78FF 0%, #8a5fff 100%);
+        color: white;
+        box-shadow: 0 4px 12px rgba(159, 120, 255, 0.3);
+    }
+
+    .filter-apply-btn:hover {
+        background: linear-gradient(135deg, #8a5fff 0%, #7848e8 100%);
+        box-shadow: 0 8px 20px rgba(159, 120, 255, 0.4);
+        transform: translateY(-4px);
+    }
+
+    .filter-reset-btn {
+        background: white;
+        color: #1D2547;
+        border: 2px solid #e5e5e5;
+    }
+
+    .filter-reset-btn:hover {
+        background: #f7f7fd;
+        border-color: #1D2547;
+        transform: translateY(-4px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    /* Desktop only elements */
+    .desktop-only {
+        display: flex;
+    }
+
+    .mobile-filter-actions {
+        display: none;
+    }
+
+    /* Mobile only: Show mobile buttons, hide desktop buttons */
+    @media (max-width: 768px) {
+        .filter-card {
+            min-width: 150px;
+        }
+
+        .filters-carousel-wrapper {
+            padding: 15px 10px;
+        }
+
+        .desktop-only {
+            display: none !important;
+        }
+
+        .mobile-filter-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .mobile-filter-btn {
+            flex: 1;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border: none;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .mobile-apply-btn {
+            background: linear-gradient(135deg, #9F78FF 0%, #8a5fff 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(159, 120, 255, 0.3);
+        }
+
+        .mobile-apply-btn:hover {
+            background: linear-gradient(135deg, #8a5fff 0%, #7848e8 100%);
+            box-shadow: 0 6px 16px rgba(159, 120, 255, 0.4);
+        }
+
+        .mobile-reset-btn {
+            background: white;
+            color: #1D2547;
+            border: 2px solid #e5e5e5;
+        }
+
+        .mobile-reset-btn:hover {
+            background: #f7f7fd;
+            border-color: #1D2547;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const carousel = document.querySelector('.filters-carousel');
+        if (!carousel) return;
+
+        const isMobile = window.matchMedia && window.matchMedia('(max-width: 768px)').matches;
+        if (!isMobile) return;
+
+        let isPointerDown = false;
+        let startX = 0;
+        let startScrollLeft = 0;
+
+        const isInteractiveTarget = (target) => {
+            return !!target.closest('select, .nice-select, input, button, a, label, option, textarea');
+        };
+
+        carousel.addEventListener('pointerdown', function (event) {
+            if (event.button !== undefined && event.button !== 0) return;
+            if (isInteractiveTarget(event.target)) return;
+
+            isPointerDown = true;
+            startX = event.clientX;
+            startScrollLeft = carousel.scrollLeft;
+            carousel.setPointerCapture?.(event.pointerId);
+        });
+
+        carousel.addEventListener('pointermove', function (event) {
+            if (!isPointerDown) return;
+            const deltaX = event.clientX - startX;
+            carousel.scrollLeft = startScrollLeft - deltaX;
+        });
+
+        const endDrag = function () {
+            isPointerDown = false;
+        };
+
+        carousel.addEventListener('pointerup', endDrag);
+        carousel.addEventListener('pointercancel', endDrag);
+        carousel.addEventListener('mouseleave', endDrag);
+    });
+</script>
+
+

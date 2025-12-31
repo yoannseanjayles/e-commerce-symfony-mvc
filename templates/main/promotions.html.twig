@@ -1,0 +1,192 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Promotions & Coupons - E-Commerce{% endblock %}
+
+{% block content %}
+    <!-- breadcrumb Start-->
+    <div class="page-notification">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb justify-content-center">
+                            <li class="breadcrumb-item"><a href="{{ path('shionhouse_index') }}">Home</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Promotions</li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- breadcrumb End-->
+
+    <!-- Promotions Area Start -->
+    <div class="about-area section-padding30">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="section-tittle mb-60 text-center">
+                        <h2>Nos Promotions en Cours</h2>
+                        <p class="pera">Profitez de nos offres exceptionnelles ! Utilisez ces codes promo lors de votre commande pour bénéficier de réductions exclusives.</p>
+                    </div>
+                </div>
+            </div>
+
+            {% if coupons|length > 0 %}
+                <div class="row justify-content-center">
+                    {% for coupon in coupons %}
+                        <div class="col-lg-4 col-md-6 mb-30">
+                            <div class="single-new-arrival" style="border: 2px solid #9F78FF; border-radius: 8px; overflow: hidden;">
+                                <div class="popular-caption" style="padding: 30px; background: linear-gradient(135deg, #9F78FF 0%, #7B5FD6 100%); color: white; text-align: center;">
+                                    <div style="font-size: 14px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px;">Code Promo</div>
+                                    <h3 style="margin: 0 0 15px 0; font-size: 32px; font-weight: 700; color: white;">{{ coupon.code }}</h3>
+                                    <div style="font-size: 48px; font-weight: 700; margin-bottom: 10px;">
+                                        {% if coupon.couponsTypes.name == 'Pourcentage' %}
+                                            -{{ coupon.discount }}%
+                                        {% else %}
+                                            -{{ coupon.discount / 100 }}€
+                                        {% endif %}
+                                    </div>
+                                    <p style="margin: 0; font-size: 14px; opacity: 0.9;">
+                                        {{ coupon.description }}
+                                    </p>
+                                </div>
+                                <div class="popular-caption" style="padding: 20px; background: white; text-align: center;">
+                                    <p style="margin: 0 0 10px 0; color: #646D77; font-size: 14px;">
+                                        <i class="ti-calendar" style="margin-right: 5px;"></i>
+                                        Valide jusqu'au {{ coupon.validity|date('d/m/Y') }}
+                                    </p>
+                                    <p style="margin: 0 0 15px 0; color: #646D77; font-size: 14px;">
+                                        <i class="ti-ticket" style="margin-right: 5px;"></i>
+                                        {{ coupon.maxUsage }} utilisations restantes
+                                    </p>
+                                    <a href="{{ path('products_index') }}" class="btn">Utiliser maintenant</a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="row justify-content-center">
+                    <div class="col-lg-8">
+                        <div style="text-align: center; padding: 60px 20px; background: #f7f7fd; border-radius: 8px;">
+                            <i class="ti-gift" style="font-size: 64px; color: #9F78FF; margin-bottom: 20px;"></i>
+                            <h3 style="margin-bottom: 15px; color: #1D2547;">Aucune promotion en cours</h3>
+                            <p style="color: #646D77; margin-bottom: 25px;">Revenez bientôt pour découvrir nos nouvelles offres exclusives !</p>
+                            <a href="{{ path('products_index') }}" class="btn">Découvrir nos produits</a>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- How to Use Section -->
+            <div class="row justify-content-center mt-60">
+                <div class="col-lg-10">
+                    <div class="section-tittle mb-30 text-center">
+                        <h3>Comment utiliser un code promo ?</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-lg-3 col-md-6 mb-30">
+                    <div style="text-align: center; padding: 30px;">
+                        <div style="width: 80px; height: 80px; background: #9F78FF; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+                            <i class="ti-shopping-cart" style="font-size: 32px; color: white;"></i>
+                        </div>
+                        <h4 style="margin-bottom: 10px; font-size: 18px;">1. Ajoutez vos produits</h4>
+                        <p style="color: #646D77; font-size: 14px;">Sélectionnez vos articles préférés et ajoutez-les au panier</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-30">
+                    <div style="text-align: center; padding: 30px;">
+                        <div style="width: 80px; height: 80px; background: #9F78FF; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+                            <i class="ti-clipboard" style="font-size: 32px; color: white;"></i>
+                        </div>
+                        <h4 style="margin-bottom: 10px; font-size: 18px;">2. Copiez le code</h4>
+                        <p style="color: #646D77; font-size: 14px;">Notez le code promo de votre choix</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-30">
+                    <div style="text-align: center; padding: 30px;">
+                        <div style="width: 80px; height: 80px; background: #9F78FF; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+                            <i class="ti-check-box" style="font-size: 32px; color: white;"></i>
+                        </div>
+                        <h4 style="margin-bottom: 10px; font-size: 18px;">3. Appliquez-le</h4>
+                        <p style="color: #646D77; font-size: 14px;">Collez le code lors du paiement et profitez de la réduction</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Promotions Area End -->
+
+    <!--? Popular Items Start -->
+    <div class="popular-items">
+        <div class="container-fluid">
+            <div class="row justify-content-center mb-40">
+                <div class="col-lg-8">
+                    <div class="section-tittle text-center">
+                        <h2>Produits en Promotion</h2>
+                        <p>Découvrez nos articles en promotion</p>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-3 col-md-6 col-sm-6">
+                    <div class="single-popular-items mb-50 text-center">
+                        <div class="popular-img">
+                            <img src="{{ asset('assets/img/gallery/arrival1.png') }}" alt="">
+                            <div class="img-cap">
+                                <span>-20%</span>
+                            </div>
+                            <div class="favorit-items">
+                                <a href="{{ path('products_index') }}" class="btn">Voir plus</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 col-sm-6">
+                    <div class="single-popular-items mb-50 text-center">
+                        <div class="popular-img">
+                            <img src="{{ asset('assets/img/gallery/arrival1.png') }}" alt="">
+                            <div class="img-cap">
+                                <span>-15%</span>
+                            </div>
+                            <div class="favorit-items">
+                                <a href="{{ path('products_index') }}" class="btn">Voir plus</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 col-sm-6">
+                    <div class="single-popular-items mb-50 text-center">
+                        <div class="popular-img">
+                            <img src="{{ asset('assets/img/gallery/arrival1.png') }}" alt="">
+                            <div class="img-cap">
+                                <span>-30%</span>
+                            </div>
+                            <div class="favorit-items">
+                                <a href="{{ path('products_index') }}" class="btn">Voir plus</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 col-sm-6">
+                    <div class="single-popular-items mb-50 text-center">
+                        <div class="popular-img">
+                            <img src="{{ asset('assets/img/gallery/arrival1.png') }}" alt="">
+                            <div class="img-cap">
+                                <span>-25%</span>
+                            </div>
+                            <div class="favorit-items">
+                                <a href="{{ path('products_index') }}" class="btn">Voir plus</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--? Popular Items End -->
+
+{% endblock %}

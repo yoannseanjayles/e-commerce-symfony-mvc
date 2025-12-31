@@ -1,0 +1,23 @@
+{#
+  EasyAdmin custom field template to render a single image thumbnail.
+  Expects field.value to be an App\Entity\Images (or null).
+#}
+
+{% set image = field.value %}
+
+{% if image is empty %}
+    <span class="text-muted">—</span>
+{% else %}
+    {% set fileName = image.name|default('') %}
+    {% if fileName %}
+        <img
+            src="{{ asset('assets/uploads/' ~ fileName) }}"
+            alt=""
+            class="img-thumbnail"
+            style="width: 42px; height: 42px; object-fit: cover;"
+            loading="lazy"
+        />
+    {% else %}
+        <span class="text-muted">—</span>
+    {% endif %}
+{% endif %}

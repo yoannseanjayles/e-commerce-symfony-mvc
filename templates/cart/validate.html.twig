@@ -1,0 +1,163 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Validation de commande{% endblock %}
+
+{% block content %}
+<div class="page-notification page-notification2">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb justify-content-center">
+                        <li class="breadcrumb-item"><a href="{{ path('shionhouse_index') }}">Home</a></li>
+                        <li class="breadcrumb-item"><a href="{{ path('cart_index') }}">Panier</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Validation</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="cart-area pt-100 pb-100">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-xl-10 col-lg-11">
+                <div class="cart-page-title mb-40 text-center">
+                    <h2>Validation de commande</h2>
+                    <p>
+                        {% if stripe_enabled|default(false) %}
+                            Vérifiez votre panier et confirmez vos informations avant le paiement Stripe.
+                        {% else %}
+                            Vérifiez votre panier et confirmez la validation de votre commande.
+                        {% endif %}
+                    </p>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-7">
+                        <div class="cart-table-wrapper">
+                            <div class="table-responsive">
+                                <table class="cart-table">
+                                    <thead>
+                                    <tr>
+                                        <th class="product-name">Produit</th>
+                                        <th class="product-quantity">Qté</th>
+                                        <th class="product-total">Total</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for element in data %}
+                                        {% set detailsHref = path('products_details', {slug: element.product.slug}) %}
+                                        {% if element.variantId is defined and element.variantId and element.variantId > 0 %}
+                                            {% set detailsHref = detailsHref ~ '?variant=' ~ element.variantId %}
+                                        {% endif %}
+                                        <tr class="cart-item">
+                                            <td class="product-name">
+                                                <div class="cart-product-preview">
+                                                    {% set firstImage = element.product.images|first %}
+                                                    {% if element.variant is defined and element.variant and element.variant.primaryImage is defined and element.variant.primaryImage and element.variant.primaryImage.name is defined and element.variant.primaryImage.name %}
+                                                        {% set firstImage = element.variant.primaryImage %}
+                                                    {% endif %}
+                                                    <a class="cart-product-thumb" href="{{ detailsHref }}" title="Voir le produit">
+                                                        {% if firstImage %}
+                                                            <img src="{{ asset('assets/uploads/' ~ firstImage.name) }}" alt="{{ element.product.name }}" loading="lazy">
+                                                        {% else %}
+                                                            <div class="cart-product-thumb-placeholder" aria-hidden="true"></div>
+                                                        {% endif %}
+                                                    </a>
+                                                    <div class="product-item-name">
+                                                        <a href="{{ detailsHref }}">{{ element.product.name }}</a>
+                                                        {% if element.variant is defined and element.variant %}
+                                                            <div class="cart-variant-meta">
+                                                                {{ element.variant.name }}
+                                                                {% if element.variant.color is defined and element.variant.color %} — {{ color_label(element.variant.color) }}{% endif %}
+                                                                {% if element.selectedSize is defined and element.selectedSize %} — Taille: {{ element.selectedSize }}{% endif %}
+                                                            </div>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="product-quantity">
+                                                <span class="price-amount">× {{ element.quantity }}</span>
+                                            </td>
+                                            <td class="product-total">
+                                                <span class="total-amount">{{ (element.quantity * element.unitPrice / 100)|round(2, 'floor') }} €</span>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="continue-shopping-wrapper mt-30">
+                            <a href="{{ path('cart_index') }}" class="border-btn">
+                                <i class="ti-arrow-left"></i> Retour au panier
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-5">
+                        <div class="cart-summary-box">
+                            <h3>Validation & paiement</h3>
+
+                            <form method="post" action="{{ path('cart_validate') }}" class="form-wrapper">
+                                {% if stripe_enabled|default(false) %}
+                                    <div class="mb-20">
+                                        <label for="address" class="mb-10">Adresse</label>
+                                        <input type="text" id="address" name="address" value="{{ address|default('') }}" required>
+                                    </div>
+
+                                    <div class="mb-20">
+                                        <label for="zipcode" class="mb-10">Code postal</label>
+                                        <input type="text" id="zipcode" name="zipcode" value="{{ zipcode|default('') }}" required maxlength="10">
+                                    </div>
+
+                                    <div class="mb-20">
+                                        <label for="city" class="mb-10">Ville</label>
+                                        <input type="text" id="city" name="city" value="{{ city|default('') }}" required>
+                                    </div>
+                                {% endif %}
+                                <input type="hidden" name="_csrf_token" value="{{ csrf_token('cart_validate') }}">
+                                <input type="hidden" name="idempotency_key" value="{{ idempotency_key|default('') }}">
+
+                                <div class="summary-divider"></div>
+
+                                <div class="summary-item">
+                                    <span class="summary-label">Sous-total:</span>
+                                    <span class="summary-value">{{ (total / 100)|round(2, 'floor') }} €</span>
+                                </div>
+
+                                <div class="summary-item">
+                                    <span class="summary-label">Livraison:</span>
+                                    <span class="summary-value">Gratuite</span>
+                                </div>
+
+                                <div class="summary-total">
+                                    <span class="summary-label">Total:</span>
+                                    <span class="summary-amount">{{ (total / 100)|round(2, 'floor') }} €</span>
+                                </div>
+
+                                <button type="submit" class="btn btn-block mt-30 cart-pay-action">
+                                    {% if stripe_enabled|default(false) %}
+                                        <i class="ti-credit-card"></i> Continuer vers Stripe
+                                    {% else %}
+                                        <i class="ti-check"></i> Confirmer la commande
+                                    {% endif %}
+                                </button>
+
+                                {% if stripe_enabled|default(false) %}
+                                    <div class="small text-muted mt-15">
+                                        Paiement sécurisé via Stripe. Vous pourrez vérifier le récapitulatif final sur la page Stripe avant de payer.
+                                    </div>
+                                {% endif %}
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

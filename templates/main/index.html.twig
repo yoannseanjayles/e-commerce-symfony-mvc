@@ -1,0 +1,426 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}L'Arbre à Lunette Paris 12 - Opticien Nation | Lunettes & Lentilles{% endblock %}
+{% block meta_description %}L'Arbre à Lunette, votre opticien à Paris 12ème près de Nation. Large choix de lunettes de vue, solaires et lentilles de contact. Conseils personnalisés, devis gratuit.{% endblock %}
+
+{% block content %}
+    {% include 'main/_hero_slider.html.twig' %}
+    
+    <!-- Avis Google En Direct -->
+    <section class="google-reviews-live section-padding" style="background: #f7f7fd;">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12 text-center mb-60">
+                    <div class="section-tittle">
+                        <h2 style="font-family: 'Cinzel', serif; color: #140C40; font-size: 42px; font-weight: 600; margin-bottom: 20px;">Avis de nos clients</h2>
+                        <div style="display: inline-flex; align-items: center; gap: 15px; margin-bottom: 20px;">
+                            <div style="color: #ffc107; font-size: 28px; letter-spacing: 3px;">★★★★★</div>
+                            <span style="font-size: 22px; font-weight: 600; color: #1D2547; font-family: 'Poppins', sans-serif;">4.8/5</span>
+                            <span style="color: #646D77; font-size: 16px; font-family: 'Poppins', sans-serif;">(150+ avis vérifiés)</span>
+                        </div>
+                        <p style="color: #646D77; font-size: 16px; max-width: 600px; margin: 0 auto; font-family: 'Poppins', sans-serif;">Découvrez les témoignages authentiques de nos clients sur Google</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Widget Google Reviews Gratuit - EmbedSocial -->
+            <div class="row">
+                <div class="col-lg-12">
+                    <!-- Option 1: Widget EmbedSocial Free (Recommandé) -->
+                    <div id="embedsocial-reviews" class="embedsocial-reviews" data-ref="your-widget-id" style="display: none;">
+                        <!-- Le widget se chargera ici automatiquement une fois configuré -->
+                        <!-- Pour configurer: https://embedsocial.com/products/reviews-widget/ -->
+                    </div>
+                    
+                    <!-- Option 2: Widget HTML pur (Gratuit à 100%) -->
+                    <div id="reviews-carousel" class="carousel slide" data-ride="carousel" data-interval="5000">
+                        <div class="carousel-inner">
+                            <!-- Slide 1 : 3 avis -->
+                            <div class="carousel-item active">
+                                <div class="row justify-content-center">
+                                    <!-- Avis 1 -->
+                                    <div class="col-lg-4 col-md-6 mb-4 review-slide-item">
+                                        <div class="review-card">
+                                            <div class="stars">★★★★★</div>
+                                            <p class="review-text">"Excellent accueil, conseils personnalisés et un grand choix de montures. L'équipe prend vraiment le temps d'écouter vos besoins. Je recommande vivement !"</p>
+                                            <div class="author-info">
+                                                <div class="author-avatar">M</div>
+                                                <div>
+                                                    <div class="author-name">Marie L.</div>
+                                                    <div class="review-date">Il y a 2 semaines</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Avis 2 -->
+                                    <div class="col-lg-4 col-md-6 mb-4 review-slide-item">
+                                        <div class="review-card">
+                                            <div class="stars">★★★★★</div>
+                                            <p class="review-text">"Service impeccable ! J'ai trouvé des lunettes parfaites. Les prix sont corrects et le tiers payant est accepté. Magasin très propre et moderne."</p>
+                                            <div class="author-info">
+                                                <div class="author-avatar">T</div>
+                                                <div>
+                                                    <div class="author-name">Thomas B.</div>
+                                                    <div class="review-date">Il y a 1 mois</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Avis 3 -->
+                                    <div class="col-lg-4 col-md-6 mb-4 review-slide-item">
+                                        <div class="review-card">
+                                            <div class="stars">★★★★★</div>
+                                            <p class="review-text">"Opticien de quartier très professionnel. Bon rapport qualité-prix et délais respectés. L'équipe est sympathique et de bon conseil."</p>
+                                            <div class="author-info">
+                                                <div class="author-avatar">S</div>
+                                                <div>
+                                                    <div class="author-name">Sophie D.</div>
+                                                    <div class="review-date">Il y a 3 semaines</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Slide 2 : 3 avis -->
+                            <div class="carousel-item">
+                                <div class="row justify-content-center">
+                                    <!-- Avis 4 -->
+                                    <div class="col-lg-4 col-md-6 mb-4 review-slide-item">
+                                        <div class="review-card">
+                                            <div class="stars">★★★★★</div>
+                                            <p class="review-text">"Très bon opticien ! Accueil chaleureux, professionnalisme et écoute. J'ai été très bien conseillée pour mes lentilles. Je reviendrai sans hésiter."</p>
+                                            <div class="author-info">
+                                                <div class="author-avatar">C</div>
+                                                <div>
+                                                    <div class="author-name">Claire M.</div>
+                                                    <div class="review-date">Il y a 1 semaine</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Avis 5 -->
+                                    <div class="col-lg-4 col-md-6 mb-4 review-slide-item">
+                                        <div class="review-card">
+                                            <div class="stars">★★★★★</div>
+                                            <p class="review-text">"Un grand merci à toute l'équipe ! Service rapide, compétent et souriant. Large choix de montures tendances. Prix compétitifs. Je recommande à 100%."</p>
+                                            <div class="author-info">
+                                                <div class="author-avatar">J</div>
+                                                <div>
+                                                    <div class="author-name">Julien P.</div>
+                                                    <div class="review-date">Il y a 2 mois</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Avis 6 -->
+                                    <div class="col-lg-4 col-md-6 mb-4 review-slide-item">
+                                        <div class="review-card">
+                                            <div class="stars">★★★★★</div>
+                                            <p class="review-text">"Excellente expérience ! Personnel à l'écoute, magasin bien situé près du métro Nation. Mes nouvelles lunettes sont parfaites. Merci !"</p>
+                                            <div class="author-info">
+                                                <div class="author-avatar">A</div>
+                                                <div>
+                                                    <div class="author-name">Antoine R.</div>
+                                                    <div class="review-date">Il y a 3 mois</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Slide 3 : 3 avis supplémentaires -->
+                            <div class="carousel-item">
+                                <div class="row justify-content-center">
+                                    <!-- Avis 7 -->
+                                    <div class="col-lg-4 col-md-6 mb-4 review-slide-item">
+                                        <div class="review-card">
+                                            <div class="stars">★★★★★</div>
+                                            <p class="review-text">"Magasin impeccable, large choix de lunettes et lentilles. L'équipe est très professionnelle et sympathique. Je recommande les yeux fermés !"</p>
+                                            <div class="author-info">
+                                                <div class="author-avatar">L</div>
+                                                <div>
+                                                    <div class="author-name">Lucie V.</div>
+                                                    <div class="review-date">Il y a 5 jours</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Avis 8 -->
+                                    <div class="col-lg-4 col-md-6 mb-4 review-slide-item">
+                                        <div class="review-card">
+                                            <div class="stars">★★★★★</div>
+                                            <p class="review-text">"Super opticien ! Équipe à l'écoute et de très bon conseil. Prix raisonnables et qualité au rendez-vous. Je ne changerais pour rien au monde."</p>
+                                            <div class="author-info">
+                                                <div class="author-avatar">P</div>
+                                                <div>
+                                                    <div class="author-name">Pierre G.</div>
+                                                    <div class="review-date">Il y a 10 jours</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Avis 9 -->
+                                    <div class="col-lg-4 col-md-6 mb-4 review-slide-item">
+                                        <div class="review-card">
+                                            <div class="stars">★★★★★</div>
+                                            <p class="review-text">"Ravie de ma visite ! Personnel adorable, conseils avisés et large gamme de produits. Mon fils et moi sommes désormais clients fidèles."</p>
+                                            <div class="author-info">
+                                                <div class="author-avatar">É</div>
+                                                <div>
+                                                    <div class="author-name">Élise D.</div>
+                                                    <div class="review-date">Il y a 4 semaines</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Contrôles du carousel -->
+                        <a class="carousel-control-prev" href="#reviews-carousel" role="button" data-slide="prev">
+                            <span style="background: #9F78FF; width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(159, 120, 255, 0.3);">
+                                <i class="fas fa-chevron-left" style="color: white; font-size: 18px;"></i>
+                            </span>
+                        </a>
+                        <a class="carousel-control-next" href="#reviews-carousel" role="button" data-slide="next">
+                            <span style="background: #9F78FF; width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(159, 120, 255, 0.3);">
+                                <i class="fas fa-chevron-right" style="color: white; font-size: 18px;"></i>
+                            </span>
+                        </a>
+                        
+                        <!-- Indicateurs -->
+                        <ol class="carousel-indicators" style="bottom: -50px;">
+                            <li data-target="#reviews-carousel" data-slide-to="0" class="active" style="background-color: #9F78FF; width: 12px; height: 12px; border-radius: 50%;"></li>
+                            <li data-target="#reviews-carousel" data-slide-to="1" style="background-color: #9F78FF; width: 12px; height: 12px; border-radius: 50%;"></li>
+                            <li data-target="#reviews-carousel" data-slide-to="2" style="background-color: #9F78FF; width: 12px; height: 12px; border-radius: 50%;"></li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Bouton CTA -->
+            <div class="row mt-60">
+                <div class="col-lg-12 text-center">
+                    <a href="https://search.google.com/local/writereview?placeid=ChIJ7dXxUWlyXkcR8a_dSFWJseE" target="_blank" class="btn boxed-btn" style="background: #4285f4; border-color: #4285f4; color: #fff !important; padding: 18px 50px; text-transform: uppercase; letter-spacing: 2px; font-family: 'Cinzel', serif; font-size: 14px; transition: all 0.3s; display: inline-flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-star" style="color: #ffc107;"></i>
+                        Laisser un avis sur Google
+                    </a>
+                    <p style="margin-top: 20px; color: #646D77; font-size: 14px; font-family: 'Poppins', sans-serif;">Votre avis compte pour nous !</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <style>
+        /* Styles pour les avis Google - Cohérent avec style.css */
+        .google-reviews-live {
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .google-reviews-live .section-tittle h2 {
+            font-family: 'Cinzel', serif;
+            color: #140C40;
+        }
+        
+        /* Cartes avis */
+        .review-card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            height: 100%;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .review-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 35px rgba(159, 120, 255, 0.25);
+            border-color: #9F78FF;
+        }
+        
+        .review-card .stars {
+            color: #ffc107;
+            font-size: 20px;
+            margin-bottom: 15px;
+            letter-spacing: 3px;
+        }
+        
+        .review-card .review-text {
+            color: #646D77;
+            font-size: 14px;
+            line-height: 1.7;
+            font-style: italic;
+            margin-bottom: 20px;
+            min-height: 85px;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .review-card .author-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .review-card .author-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #9F78FF 0%, #8a5fff 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 20px;
+            font-family: 'Cinzel', serif;
+            box-shadow: 0 4px 12px rgba(159, 120, 255, 0.3);
+        }
+        
+        .review-card .author-name {
+            font-weight: 600;
+            color: #1D2547;
+            font-size: 15px;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .review-card .review-date {
+            font-size: 12px;
+            color: #999;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        /* Bouton hover effect */
+        .google-reviews-live .boxed-btn:hover {
+            background: #3367d6 !important;
+            border-color: #3367d6 !important;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(66, 133, 244, 0.4);
+        }
+        
+        /* Animation d'entrée des cartes */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        #static-reviews-grid .col-lg-4 {
+            animation: fadeInUp 0.6s ease forwards;
+        }
+        
+        #static-reviews-grid .col-lg-4:nth-child(1) { animation-delay: 0.1s; }
+        #static-reviews-grid .col-lg-4:nth-child(2) { animation-delay: 0.2s; }
+        #static-reviews-grid .col-lg-4:nth-child(3) { animation-delay: 0.3s; }
+        #static-reviews-grid .col-lg-4:nth-child(4) { animation-delay: 0.4s; }
+        #static-reviews-grid .col-lg-4:nth-child(5) { animation-delay: 0.5s; }
+        #static-reviews-grid .col-lg-4:nth-child(6) { animation-delay: 0.6s; }
+        
+        /* Widget EmbedSocial */
+        .embedsocial-reviews {
+            min-height: 400px;
+        }
+        
+        /* Carousel contrôles */
+        .carousel-control-prev,
+        .carousel-control-next {
+            width: 60px;
+            opacity: 1;
+        }
+        
+        .carousel-control-prev:hover span,
+        .carousel-control-next:hover span {
+            background: #8a5fff !important;
+            transform: scale(1.1);
+            transition: all 0.3s ease;
+        }
+        
+        .carousel-indicators li {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .carousel-indicators li.active {
+            width: 30px !important;
+            border-radius: 6px !important;
+        }
+        
+        /* Responsive - Desktop: 3 avis, Tablette: 2 avis, Mobile: 1 avis */
+        @media (max-width: 991px) {
+            .review-slide-item:nth-child(3) {
+                display: none;
+            }
+        }
+        
+        @media (max-width: 767px) {
+            .google-reviews-live .section-tittle h2 {
+                font-size: 28px;
+            }
+            .google-reviews-live .boxed-btn {
+                padding: 15px 30px;
+                font-size: 12px;
+            }
+            
+            /* Afficher 1 seul avis sur mobile */
+            .review-slide-item:nth-child(2),
+            .review-slide-item:nth-child(3) {
+                display: none !important;
+            }
+            
+            .review-slide-item {
+                max-width: 100% !important;
+                flex: 0 0 100% !important;
+                padding-left: 15px;
+                padding-right: 15px;
+            }
+            
+            .review-card {
+                padding: 30px 20px;
+                margin-bottom: 20px;
+                max-width: 500px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+            .review-card .review-text {
+                min-height: 70px;
+                font-size: 14px;
+            }
+            
+            /* Contrôles carousel mobile */
+            .carousel-control-prev,
+            .carousel-control-next {
+                width: 45px;
+            }
+            
+            .carousel-control-prev span,
+            .carousel-control-next span {
+                width: 40px !important;
+                height: 40px !important;
+            }
+            
+            .carousel-indicators {
+                bottom: -40px !important;
+            }
+        }
+    </style>
+    
+    {% include 'main/_popular_items.html.twig' %}
+    {% include 'main/_new_arrivals.html.twig' %}
+    {% include 'main/_collection_banner.html.twig' %}
+    {% include 'main/_popular_products.html.twig' %}
+    {% include 'main/_services.html.twig' %}
+{% endblock %}

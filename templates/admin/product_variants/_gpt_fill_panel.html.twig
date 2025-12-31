@@ -1,0 +1,111 @@
+{#
+  Variant equivalent of the product GPT panel:
+  - no EasyAdmin dropdown action
+  - in-page panel displayed on new/edit screens
+#}
+
+<div class="content-panel" id="gpt-variant-panel">
+    <div class="content-panel-header">
+        <h3 class="content-panel-title">✨ Améliorer avec GPT</h3>
+    </div>
+
+    <div class="content-panel-body">
+        <div class="small text-muted">
+            Amélioration individuelle: complète uniquement les champs vides de la variante (nom, couleur, taille, dimensions…).
+        </div>
+
+        <div class="mt-3">
+            {% if entity is defined and entity.primaryKeyValue %}
+                <a class="btn btn-primary"
+                   id="gpt-fill-variant-btn"
+                   href="{{ ea_url()
+                       .setController('App\\Controller\\Admin\\ProductVariantCrudController')
+                       .setAction('gptFill')
+                       .setEntityId(entity.primaryKeyValue)
+                       .set('aggressiveness', 'low')
+                       .set('webSearch', 0)
+                       .generateUrl() }}">
+                    ✨ Compléter (champs vides)
+                </a>
+            {% else %}
+                <button type="button" class="btn btn-primary" disabled>✨ Compléter (champs vides)</button>
+                <div class="small text-muted mt-2">Enregistrez la variante une première fois pour activer GPT.</div>
+            {% endif %}
+        </div>
+
+        <hr class="my-4" />
+
+        <div class="small text-muted">
+            Ajout en masse: génère et ajoute les variantes couleurs manquantes pour le produit lié.
+        </div>
+
+        <div class="row g-2 align-items-end mt-2">
+            <div class="col-12 col-md-4">
+                <label class="form-label" for="gpt-variant-aggressiveness">⚙️ Niveau d’agressivité</label>
+                <select class="form-select" id="gpt-variant-aggressiveness">
+                    <option value="low" selected>Prudent</option>
+                    <option value="medium">Équilibré</option>
+                    <option value="high">Agressif</option>
+                </select>
+            </div>
+            <div class="col-12 col-md-4">
+                <div class="form-check mt-4">
+                    <input class="form-check-input" type="checkbox" value="1" id="gpt-variant-web-search">
+                    <label class="form-check-label" for="gpt-variant-web-search">🔎 Rechercher sur le web</label>
+                </div>
+            </div>
+            <div class="col-12 col-md-4">
+                {% if entity is defined and entity.primaryKeyValue %}
+                    <a class="btn btn-outline-success w-100"
+                       id="gpt-add-color-variants-btn"
+                       href="{{ ea_url()
+                           .setController('App\\Controller\\Admin\\ProductVariantCrudController')
+                           .setAction('gptAddColorVariants')
+                           .setEntityId(entity.primaryKeyValue)
+                           .set('aggressiveness', 'low')
+                           .set('webSearch', 0)
+                           .generateUrl() }}">
+                        🎨 Ajouter variantes couleurs
+                    </a>
+                {% else %}
+                    <button type="button" class="btn btn-outline-success w-100" disabled>🎨 Ajouter variantes couleurs</button>
+                {% endif %}
+            </div>
+        </div>
+
+        <script>
+            (function () {
+                var btnFill = document.getElementById('gpt-fill-variant-btn');
+                var btnColors = document.getElementById('gpt-add-color-variants-btn');
+                var sel = document.getElementById('gpt-variant-aggressiveness');
+                var web = document.getElementById('gpt-variant-web-search');
+                if ((!btnFill && !btnColors) || !sel || !web) {
+                    return;
+                }
+
+                var updateOne = function (btn) {
+                    if (!btn) {
+                        return;
+                    }
+                    try {
+                        var url = new URL(btn.getAttribute('href'), window.location.href);
+                        url.searchParams.set('aggressiveness', sel.value || 'low');
+                        url.searchParams.set('webSearch', web.checked ? '1' : '0');
+                        btn.setAttribute('href', url.toString());
+                    } catch (e) {
+                        // noop
+                    }
+                };
+
+                var updateHref = function () {
+                    updateOne(btnFill);
+                    updateOne(btnColors);
+                };
+
+                sel.addEventListener('change', updateHref);
+                web.addEventListener('change', updateHref);
+                updateHref();
+            })();
+        </script>
+    </div>
+</div>

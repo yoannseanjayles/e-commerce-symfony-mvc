@@ -1,0 +1,96 @@
+<!-- Hero Slider -->
+<div class="container-fluid">
+    <div class="slider-area">
+        <div class="header-right2 d-flex align-items-center">
+            <div class="header-social  d-block d-md-none">
+                <a href="#"><i class="fab fa-twitter"></i></a>
+                <a href="https://bit.ly/sai4ull"><i class="fab fa-facebook-f"></i></a>
+                <a href="#"><i class="fab fa-pinterest-p"></i></a>
+            </div>
+            <div class="search d-block d-md-none" >
+                <ul class="d-flex align-items-center">
+                    <li class="mr-15">
+                        <div class="nav-search search-switch">
+                            <i class="ti-search"></i>
+                        </div>
+                    </li>
+                    <li>
+                        <a href="{{ path('cart_index') }}">
+                            <div class="card-stor">
+                                <img src="{{ asset('assets/img/gallery/card.svg') }}" alt="">
+                                <span>{{ app.session.get('panier', [])|length }}</span>
+                            </div>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="slider-active dot-style">
+            {% if heroes is defined and heroes|length > 0 %}
+                {% for hero in heroes %}
+                    <div class="single-slider hero-overly slider-height d-flex align-items-center" 
+                         {% if hero.backgroundImage %}
+                         style="background-image: url('{{ asset('assets/uploads/' ~ hero.backgroundImage) }}'); background-size: cover; background-position: center;"
+                         {% else %}
+                         class="slider-bg{{ loop.index }}"
+                         {% endif %}>
+                        <div class="container">
+                            <div class="row justify-content-center">
+                                <div class="col-xl-8 col-lg-9">
+                                    <div class="hero__caption">
+                                        <h1>{{ hero.title }}</h1>
+                                        {% if hero.subtitle %}
+                                            <p style="color: white; font-size: 20px; margin-top: 20px;">{{ hero.subtitle }}</p>
+                                        {% endif %}
+                                        {% if hero.buttonText and hero.buttonLink %}
+                                            <a href="{{ hero.buttonLink starts with '/' ? hero.buttonLink : path(hero.buttonLink) }}" class="btn">{{ hero.buttonText }}</a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                {# Slides par défaut si aucun hero n'est configuré #}
+                <div class="single-slider slider-bg1 hero-overly slider-height d-flex align-items-center">
+                    <div class="container">
+                        <div class="row justify-content-center">
+                            <div class="col-xl-8 col-lg-9">
+                                <div class="hero__caption">
+                                    <h1>fashion<br>changing<br>always</h1>
+                                    <a href="{{ path('products_index') }}" class="btn">Shop Now</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="single-slider slider-bg2 hero-overly slider-height d-flex align-items-center">
+                    <div class="container">
+                        <div class="row justify-content-center">
+                            <div class="col-xl-8 col-lg-9">
+                                <div class="hero__caption">
+                                    <h1>fashion<br>changing<br>always</h1>
+                                    <a href="{{ path('products_index') }}" class="btn">Shop Now</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="single-slider slider-bg3 hero-overly slider-height d-flex align-items-center">
+                    <div class="container">
+                        <div class="row justify-content-center">
+                            <div class="col-xl-8 col-lg-9">
+                                <div class="hero__caption">
+                                    <h1>fashion<br>changing<br>always</h1>
+                                    <a href="{{ path('products_index') }}" class="btn">Shop Now</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>

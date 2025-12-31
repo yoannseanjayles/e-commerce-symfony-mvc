@@ -1,0 +1,22 @@
+{#
+  EasyAdmin custom field template to render thumbnails for product images.
+  Expects field.value to be an iterable of App\Entity\Images.
+#}
+
+{% if field.value is empty %}
+    <span class="badge bg-secondary">0</span>
+{% else %}
+    <div class="d-flex flex-wrap gap-1">
+        {% for image in field.value %}
+            {% if image.name is defined and image.name %}
+                <img
+                    src="{{ asset('assets/uploads/' ~ image.name) }}"
+                    alt=""
+                    class="img-thumbnail"
+                    style="width: 42px; height: 42px; object-fit: cover;"
+                    loading="lazy"
+                />
+            {% endif %}
+        {% endfor %}
+    </div>
+{% endif %}

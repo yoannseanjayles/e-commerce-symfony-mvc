@@ -1,0 +1,214 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}À propos - E-Commerce{% endblock %}
+
+{% block content %}
+    <!-- breadcrumb Start-->
+    <div class="page-notification">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb justify-content-center">
+                            <li class="breadcrumb-item"><a href="{{ path('shionhouse_index') }}">Home</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">À propos</li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- breadcrumb End-->
+
+    <!-- About Area Start -->
+    <div class="about-area">
+        <div class="container">
+            {% if aboutPage %}
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="section-tittle mb-60 text-center pt-10">
+                        <h2>{{ aboutPage.section1Title }}</h2>
+                        <p class="pera">{{ aboutPage.section1Text }}</p>
+                    </div>
+                </div>
+                <div class="col-lg-12">
+                    <div class="about-img pb-bottom">
+                        <img src="{{ aboutPage.section1Image ? asset('assets/uploads/' ~ aboutPage.section1Image) : asset('assets/img/gallery/about1.png') }}" alt="" class="w-100">
+                    </div>
+                </div>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="section-tittle mb-60 text-center pt-10">
+                        <h2>{{ aboutPage.section2Title }}</h2>
+                        <p class="pera">{{ aboutPage.section2Text }}</p>
+                    </div>
+                </div>
+                <div class="col-lg-12">
+                    <div class="about-img pb-bottom">
+                        <img src="{{ aboutPage.section2Image ? asset('assets/uploads/' ~ aboutPage.section2Image) : asset('assets/img/gallery/about2.png') }}" alt="" class="w-100">
+                    </div>
+                </div>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="section-tittle mb-60 text-center pt-10">
+                        <h2>{{ aboutPage.section3Title }}</h2>
+                        <p class="pera">{{ aboutPage.section3Text }}</p>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="section-tittle mb-60 text-center pt-10">
+                        <h2>Notre Histoire</h2>
+                        <p class="pera">Depuis notre création, nous nous engageons à offrir des produits de qualité exceptionnelle à nos clients. Notre passion pour l'excellence et notre dévouement au service client font de nous un leader dans notre domaine. Chaque produit que nous proposons est soigneusement sélectionné pour répondre aux attentes les plus élevées.</p>
+                    </div>
+                </div>
+                <div class="col-lg-12">
+                    <div class="about-img pb-bottom">
+                        <img src="{{ asset('assets/img/gallery/about1.png') }}" alt="" class="w-100">
+                    </div>
+                </div>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="section-tittle mb-60 text-center pt-10">
+                        <h2>Le Début de l'Aventure</h2>
+                        <p class="pera">Notre voyage a commencé avec une vision simple : rendre le shopping en ligne accessible, agréable et fiable. Nous croyons que chaque client mérite une expérience d'achat exceptionnelle, c'est pourquoi nous travaillons sans relâche pour améliorer nos services et élargir notre catalogue de produits.</p>
+                    </div>
+                </div>
+                <div class="col-lg-12">
+                    <div class="about-img pb-bottom">
+                        <img src="{{ asset('assets/img/gallery/about2.png') }}" alt="" class="w-100">
+                    </div>
+                </div>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="section-tittle mb-60 text-center pt-10">
+                        <h2>Aujourd'hui</h2>
+                        <p class="pera">Nous continuons à innover et à nous développer, toujours avec le même engagement envers la qualité et la satisfaction client. Notre équipe dévouée travaille chaque jour pour vous offrir les meilleurs produits aux meilleurs prix. Merci de faire partie de notre histoire.</p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    <!-- About Area End -->
+
+    <!--? Popular Items Start -->
+    <div class="popular-items">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-3 col-md-6 col-sm-6">
+                    <div class="single-popular-items mb-50 text-center">
+                        <div class="popular-img">
+                            <img src="{{ asset('assets/img/gallery/popular1.png') }}" alt="">
+                            <div class="img-cap">
+                                <span>Lunettes</span>
+                            </div>
+                            <div class="favorit-items">
+                                <a href="{{ path('products_index') }}" class="btn">Voir plus</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 col-sm-6">
+                    <div class="single-popular-items mb-50 text-center">
+                        <div class="popular-img">
+                            <img src="{{ asset('assets/img/gallery/popular2.png') }}" alt="">
+                            <div class="img-cap">
+                                <span>Montres</span>
+                            </div>
+                            <div class="favorit-items">
+                                <a href="{{ path('products_index') }}" class="btn">Voir plus</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 col-sm-6">
+                    <div class="single-popular-items mb-50 text-center">
+                        <div class="popular-img">
+                            <img src="{{ asset('assets/img/gallery/popular3.png') }}" alt="">
+                            <div class="img-cap">
+                                <span>Vestes</span>
+                            </div>
+                            <div class="favorit-items">
+                                <a href="{{ path('products_index') }}" class="btn">Voir plus</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 col-sm-6">
+                    <div class="single-popular-items mb-50 text-center">
+                        <div class="popular-img">
+                            <img src="{{ asset('assets/img/gallery/popular4.png') }}" alt="">
+                            <div class="img-cap">
+                                <span>Vêtements</span>
+                            </div>
+                            <div class="favorit-items">
+                                <a href="{{ path('products_index') }}" class="btn">Voir plus</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Popular Items End -->
+
+    <!--? Services Area Start -->
+    <div class="categories-area section-padding40 gray-bg">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-3 col-md-6 col-sm-6">
+                    <div class="single-cat mb-50">
+                        <div class="cat-icon">
+                            <img src="{{ asset('assets/img/icon/services1.svg') }}" alt="">
+                        </div>
+                        <div class="cat-cap">
+                            <h5>{{ aboutPage and aboutPage.service1Title ? aboutPage.service1Title : 'Livraison Rapide & Gratuite' }}</h5>
+                            <p>{{ aboutPage and aboutPage.service1Text ? aboutPage.service1Text : 'Livraison gratuite sur toutes les commandes' }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 col-sm-6">
+                    <div class="single-cat mb-50">
+                        <div class="cat-icon">
+                            <img src="{{ asset('assets/img/icon/services2.svg') }}" alt="">
+                        </div>
+                        <div class="cat-cap">
+                            <h5>{{ aboutPage and aboutPage.service2Title ? aboutPage.service2Title : 'Paiement Sécurisé' }}</h5>
+                            <p>{{ aboutPage and aboutPage.service2Text ? aboutPage.service2Text : 'Transactions 100% sécurisées' }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 col-sm-6">
+                    <div class="single-cat mb-30">
+                        <div class="cat-icon">
+                            <img src="{{ asset('assets/img/icon/services3.svg') }}" alt="">
+                        </div>
+                        <div class="cat-cap">
+                            <h5>{{ aboutPage and aboutPage.service3Title ? aboutPage.service3Title : 'Retours Faciles' }}</h5>
+                            <p>{{ aboutPage and aboutPage.service3Text ? aboutPage.service3Text : 'Retours gratuits sous 30 jours' }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 col-sm-6">
+                    <div class="single-cat">
+                        <div class="cat-icon">
+                            <img src="{{ asset('assets/img/icon/services4.svg') }}" alt="">
+                        </div>
+                        <div class="cat-cap">
+                            <h5>{{ aboutPage and aboutPage.service4Title ? aboutPage.service4Title : 'Support 24/7' }}</h5>
+                            <p>{{ aboutPage and aboutPage.service4Text ? aboutPage.service4Text : 'Service client disponible à tout moment' }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--? Services Area End -->
+{% endblock %}

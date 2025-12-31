@@ -1,0 +1,104 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content_title %}🎨 GPT: Ajouter variantes couleurs{% endblock %}
+
+{% block main %}
+    <div class="content-panel">
+        <div class="content-panel-header">
+            <h3 class="content-panel-title">🎨 Variantes couleur (IA)</h3>
+        </div>
+        <div class="content-panel-body">
+            <div class="row g-3">
+                <div class="col-12 col-lg-4">
+                    <div class="mb-2">
+                        <div class="small text-muted">Produit</div>
+                        <div class="fw-semibold">{{ product.name|default('') }}</div>
+                    </div>
+
+                    {% if existingVariants is defined and existingVariants is not empty %}
+                        <div class="mt-3">
+                            <div class="fw-semibold">Variantes existantes</div>
+                            <div class="small text-muted">Les couleurs déjà présentes seront proposées mais marquées comme doublons.</div>
+                            <ul class="mt-2 mb-0" style="padding-left: 18px;">
+                                {% for v in existingVariants %}
+                                    <li>
+                                        {{ v.name|default('') }}
+                                        {% if v.color %}<span class="text-muted">— {{ v.color }}</span>{% endif %}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="col-12 col-lg-8">
+                    <form method="post" action="">
+                        <input type="hidden" name="_csrf" value="{{ csrf_token('admin_variant_gpt_add_colors') }}" />
+                        <input type="hidden" name="backUrl" value="{{ backUrl|default('') }}" />
+
+                        <div class="row g-2 align-items-end">
+                            <div class="col-12 col-md-4">
+                                <label class="form-label" for="aggressiveness">⚙️ Niveau d’agressivité</label>
+                                <select class="form-select" id="aggressiveness" name="aggressiveness">
+                                    <option value="low" {{ aggressiveness == 'low' ? 'selected' : '' }}>Prudent</option>
+                                    <option value="medium" {{ aggressiveness == 'medium' ? 'selected' : '' }}>Équilibré</option>
+                                    <option value="high" {{ aggressiveness == 'high' ? 'selected' : '' }}>Agressif</option>
+                                </select>
+                            </div>
+
+                            <div class="col-12 col-md-4">
+                                <div class="form-check mt-4">
+                                    <input class="form-check-input" type="checkbox" value="1" id="webSearch" name="webSearch" {{ webSearch ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="webSearch">🔎 Rechercher sur le web</label>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-md-4 text-md-end">
+                                <button class="btn btn-primary" type="submit" name="mode" value="search">🎨 Générer des suggestions</button>
+                            </div>
+                        </div>
+
+                        <div class="small text-muted mt-3">
+                            Étape 1: générer des suggestions. Étape 2: sélectionner et créer.
+                        </div>
+
+                        {% if suggested is defined and suggested is not empty %}
+                            <hr>
+                            <input type="hidden" name="suggestedPayload" value="{{ suggestedPayload|default('') }}" />
+
+                            <div class="d-flex justify-content-between align-items-center mb-2" style="gap: 10px; flex-wrap: wrap;">
+                                <div class="fw-semibold">Suggestions ({{ suggested|length }})</div>
+                                <button class="btn btn-success" type="submit" name="mode" value="import">✅ Créer les variantes sélectionnées</button>
+                            </div>
+
+                            <div class="row g-2">
+                                {% for s in suggested %}
+                                    <div class="col-12 col-md-6">
+                                        <label class="card" style="cursor:pointer;">
+                                            <div class="card-body" style="display:flex; gap:12px; align-items:flex-start;">
+                                                <div style="width:22px;height:22px;border-radius:6px;border:1px solid rgba(0,0,0,.12); background: {{ s.colorCss|default('#ffffff') }};"></div>
+                                                <div style="flex:1;">
+                                                    <div class="fw-semibold" style="display:flex; align-items:center; gap:10px;">
+                                                        <input class="form-check-input" type="checkbox" name="selected[]" value="{{ loop.index0 }}" {% if s.duplicate %}disabled{% endif %}>
+                                                        <span>{{ s.name|default('') }}</span>
+                                                    </div>
+                                                    <div class="small text-muted">
+                                                        Couleur: <strong>{{ s.colorLabel|default('') }}</strong>
+                                                        {% if s.colorCode %}— <span>{{ s.colorCode }}</span>{% endif %}
+                                                    </div>
+                                                    {% if s.duplicate %}
+                                                        <div class="small text-warning">Doublon (couleur déjà existante) — ignoré</div>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </label>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

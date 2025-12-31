@@ -1,0 +1,251 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Connexion{% endblock %}
+
+{% block content %}
+<section class="auth-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-xl-5 col-lg-6 col-md-8">
+                <div class="auth-card">
+                    <div class="auth-header">
+                        <div class="auth-icon"><i class="ti-unlock"></i></div>
+                        <div>
+                            <p class="auth-eyebrow">Connexion</p>
+                            <h1 class="auth-title">Heureux de vous revoir</h1>
+                            <p class="auth-subtitle">Accédez à votre compte pour poursuivre vos achats.</p>
+                        </div>
+                    </div>
+
+                    {% if error %}
+                        <div class="auth-alert">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+                    {% endif %}
+
+                    {% if app.user %}
+                        <div class="auth-info">
+                            Connecté(e) comme <strong>{{ app.user.userIdentifier }}</strong> — <a href="{{ path('app_logout') }}">Me déconnecter</a>
+                        </div>
+                    {% endif %}
+
+                    <form method="post" class="auth-form">
+                        <div class="form-group">
+                            <label for="inputEmail">Email</label>
+                            <div class="input-wrap">
+                                <i class="ti-email"></i>
+                                <input type="email" value="{{ last_username }}" name="email" id="inputEmail" autocomplete="email" required autofocus>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="inputPassword">Mot de passe</label>
+                            <div class="input-wrap">
+                                <i class="ti-lock"></i>
+                                <input type="password" name="password" id="inputPassword" autocomplete="current-password" required>
+                            </div>
+                        </div>
+
+                        <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+                        <div class="auth-actions">
+                            <button type="submit" class="btn-auth">Me connecter</button>
+                            <a href="{{ path('forgotten_password') }}" class="link-muted">Mot de passe oublié ?</a>
+                        </div>
+                    </form>
+
+                    <div class="auth-footer">
+                        <span>Nouveau sur le site ?</span>
+                        <a href="{{ path('app_register') }}" class="link-primary">Créer un compte</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .auth-section {
+        padding: 90px 0;
+        background: linear-gradient(135deg, #f7f7fd 0%, #ffffff 40%, #f2ecff 100%);
+    }
+
+    .auth-card {
+        background: #fff;
+        border-radius: 14px;
+        box-shadow: 0 20px 60px rgba(16, 24, 40, 0.08);
+        padding: 35px;
+        border: 1px solid #eef0f6;
+    }
+
+    .auth-header {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+        margin-bottom: 24px;
+    }
+
+    .auth-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 14px;
+        background: rgba(159, 120, 255, 0.12);
+        color: #9F78FF;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+    }
+
+    .auth-eyebrow {
+        margin: 0;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: #9F78FF;
+        font-weight: 700;
+    }
+
+    .auth-title {
+        margin: 2px 0 4px;
+        font-size: 24px;
+        color: #1D2547;
+        font-weight: 800;
+    }
+
+    .auth-subtitle {
+        margin: 0;
+        color: #646D77;
+        font-size: 14px;
+    }
+
+    .auth-alert {
+        background: #ffe9e9;
+        color: #c0392b;
+        border: 1px solid #ffc7c7;
+        border-radius: 10px;
+        padding: 12px 14px;
+        font-size: 14px;
+        margin-bottom: 14px;
+    }
+
+    .auth-info {
+        background: #f4f6ff;
+        border: 1px solid #dbe1ff;
+        color: #1D2547;
+        border-radius: 10px;
+        padding: 12px 14px;
+        font-size: 14px;
+        margin-bottom: 14px;
+    }
+
+    .auth-form {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: 700;
+        color: #1D2547;
+        font-size: 13px;
+        margin-bottom: 6px;
+        letter-spacing: 0.01em;
+    }
+
+    .input-wrap {
+        position: relative;
+        display: flex;
+        align-items: center;
+        border: 1px solid #e5e7ef;
+        border-radius: 10px;
+        padding: 10px 12px;
+        background: #fafbff;
+        transition: all 0.2s ease;
+    }
+
+    .input-wrap:focus-within {
+        border-color: #9F78FF;
+        box-shadow: 0 0 0 3px rgba(159, 120, 255, 0.12);
+        background: #fff;
+    }
+
+    .input-wrap i {
+        color: #9F78FF;
+        font-size: 16px;
+        margin-right: 10px;
+    }
+
+    .input-wrap input {
+        border: none;
+        background: transparent;
+        width: 100%;
+        font-size: 15px;
+        color: #1D2547;
+        padding: 6px 0;
+    }
+
+    .input-wrap input:focus {
+        outline: none;
+    }
+
+    .auth-actions {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-top: 4px;
+    }
+
+    .btn-auth {
+        flex: 1;
+        border: none;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #9F78FF 0%, #7f5ad9 100%);
+        color: #fff;
+        padding: 12px 16px;
+        font-weight: 700;
+        letter-spacing: 0.01em;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 10px 20px rgba(159, 120, 255, 0.25);
+    }
+
+    .btn-auth:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 12px 26px rgba(159, 120, 255, 0.32);
+    }
+
+    .link-muted {
+        color: #646D77;
+        font-size: 13px;
+        text-decoration: none;
+    }
+
+    .link-muted:hover { color: #9F78FF; }
+
+    .auth-footer {
+        margin-top: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        font-size: 14px;
+        color: #646D77;
+    }
+
+    .link-primary {
+        color: #9F78FF;
+        font-weight: 700;
+        text-decoration: none;
+    }
+
+    .link-primary:hover { color: #7f5ad9; }
+
+    @media (max-width: 768px) {
+        .auth-card { padding: 28px; }
+        .auth-actions { flex-direction: column; align-items: stretch; }
+        .btn-auth { width: 100%; }
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,19 @@
+<!-- Popular Items Start -->
+<div class="popular-items">
+    <div class="container-fluid">
+        <div class="row">
+            {% for i,label in {'popular1.png':'Glasses','popular2.png':'Watches','popular3.png':'Jackets','popular4.png':'Clothes'} %}
+            <div class="col-lg-3 col-md-6 col-sm-6">
+                <div class="single-popular-items mb-50 text-center">
+                    <div class="popular-img">
+                        <img src="{{ asset('assets/img/gallery/' ~ i) }}" alt="">
+                        <div class="img-cap"><span>{{ label }}</span></div>
+                        <div class="favorit-items"><a href="{{ path('products_index') }}" class="btn">Shop Now</a></div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+<!-- Popular Items End -->

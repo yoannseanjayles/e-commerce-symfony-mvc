@@ -1,0 +1,233 @@
+/* Logo responsive styles */
+.logo-img {
+    max-height: 150px;
+    height: auto;
+    width: auto;
+    transition: all 0.3s ease;
+}
+
+/* Tablet and below */
+@media (max-width: 991px) {
+    .logo-img {
+        max-height: 100px;
+    }
+}
+
+/* Mobile and small mobile devices */
+@media (max-width: 767px) {
+    .logo-img {
+        max-height: 100px;
+    }
+}
+
+/* Cart + Checkout validation (shared styles)
+   Kept consistent with templates/cart/index.html.twig */
+.cart-area {
+    background: #fff;
+}
+
+.cart-page-title {
+    text-align: center;
+    padding-bottom: 30px;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.cart-page-title h2 {
+    font-size: 42px;
+    font-weight: 600;
+    color: #1D2547;
+    margin-bottom: 10px;
+}
+
+.cart-page-title p {
+    color: #646D77;
+    font-size: 16px;
+}
+
+.cart-table-wrapper {
+    margin: 50px 0;
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.cart-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.cart-table thead {
+    background: #f7f7fd;
+    border-bottom: 2px solid #e5e5e5;
+}
+
+.cart-table thead th {
+    padding: 20px 15px;
+    text-align: left;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1D2547;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.cart-table tbody tr {
+    border-bottom: 1px solid #f0f0f0;
+    transition: background 0.3s ease;
+}
+
+.cart-table tbody tr:hover {
+    background: #f7f7fd;
+}
+
+.cart-table tbody td {
+    padding: 25px 15px;
+    vertical-align: middle;
+    color: #646D77;
+    font-size: 14px;
+}
+
+.cart-product-preview {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.cart-product-thumb {
+    display: inline-block;
+    width: 56px;
+    height: 56px;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #f7f7fd;
+}
+
+.cart-product-thumb img {
+    width: 56px;
+    height: 56px;
+    object-fit: cover;
+    display: block;
+}
+
+.cart-product-thumb-placeholder {
+    width: 56px;
+    height: 56px;
+    background: #f7f7fd;
+}
+
+.product-item-name {
+    max-width: 250px;
+    word-wrap: break-word;
+}
+
+.product-item-name a {
+    color: inherit;
+}
+
+.cart-variant-meta {
+    color: #646D77;
+    font-size: 12px;
+    margin-top: 4px;
+}
+
+.price-amount {
+    font-weight: 600;
+    color: #1D2547;
+    font-size: 16px;
+}
+
+.total-amount {
+    font-weight: 600;
+    color: #9F78FF;
+    font-size: 16px;
+}
+
+.cart-summary-box {
+    background: #f7f7fd;
+    padding: 30px;
+    border-radius: 8px;
+    border: 1px solid #e5e5e5;
+}
+
+.cart-summary-box h3 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #1D2547;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #e5e5e5;
+}
+
+.summary-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0;
+    font-size: 14px;
+    color: #646D77;
+}
+
+.summary-label {
+    font-weight: 500;
+}
+
+.summary-value {
+    color: #1D2547;
+    font-weight: 500;
+}
+
+.summary-divider {
+    border-top: 1px solid #e5e5e5;
+    margin: 15px 0;
+}
+
+.summary-total {
+    display: flex;
+    justify-content: space-between;
+    padding: 15px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #1D2547;
+}
+
+.summary-amount {
+    color: #9F78FF;
+    font-size: 22px;
+    font-weight: 700;
+}
+
+.btn-block {
+    display: block;
+    width: 100%;
+    text-align: center;
+}
+
+.cart-pay-action {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    line-height: 1.2;
+    background: linear-gradient(135deg, #9F78FF 0%, #8a5fff 100%);
+    border: none;
+    transition: all 0.3s;
+}
+
+.cart-pay-action:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(159, 120, 255, 0.3);
+}
+
+@media (max-width: 768px) {
+    .cart-table-wrapper {
+        margin: 30px 0;
+    }
+
+    .cart-page-title h2 {
+        font-size: 28px;
+    }
+
+    .product-item-name {
+        max-width: 150px;
+    }
+}

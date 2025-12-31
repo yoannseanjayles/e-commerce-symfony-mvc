@@ -1,0 +1,55 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Maintenance{% endblock %}
+
+{% block content %}
+<div class="page-notification page-notification2">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb justify-content-center">
+                        <li class="breadcrumb-item"><a href="{{ path('shionhouse_index') }}">Home</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Maintenance</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="section-padding">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-xl-7 col-lg-8 col-md-10 text-center">
+                <div class="popup_box">
+                    <h1 class="mb-15">Site en maintenance</h1>
+                    <p class="mb-30">Nous effectuons une intervention technique. Merci de revenir dans quelques minutes.</p>
+
+                    <div class="separator mb-30"></div>
+
+                    <h3 class="mb-10">Accès administrateur</h3>
+                    <p class="mb-30">Si vous êtes administrateur, connectez-vous pour accéder au site.</p>
+
+                    <form method="post" action="{{ path('app_login') }}" class="form-wrapper text-left">
+                        <div class="mb-20">
+                            <label for="maintenanceEmail" class="mb-10">Email</label>
+                            <input type="email" name="email" id="maintenanceEmail" autocomplete="email" required>
+                        </div>
+
+                        <div class="mb-30">
+                            <label for="maintenancePassword" class="mb-10">Mot de passe</label>
+                            <input type="password" name="password" id="maintenancePassword" autocomplete="current-password" required>
+                        </div>
+
+                        <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+                        <button type="submit" class="btn">Connexion admin</button>
+                        <a class="border-btn ml-10" href="{{ path('products_index') }}">Retour au shop</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

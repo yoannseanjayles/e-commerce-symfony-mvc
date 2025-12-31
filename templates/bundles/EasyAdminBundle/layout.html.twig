@@ -1,0 +1,53 @@
+{% extends '@!EasyAdmin/layout.html.twig' %}
+
+{% block body_javascript %}
+    {{ parent() }}
+
+    <script>
+        (function () {
+            const inputs = Array.from(document.querySelectorAll('[data-route-picker="1"]'));
+            if (inputs.length === 0) {
+                return;
+            }
+
+            const datalistId = 'ea-symfony-routes';
+            let datalist = document.getElementById(datalistId);
+            if (!datalist) {
+                datalist = document.createElement('datalist');
+                datalist.id = datalistId;
+                document.body.appendChild(datalist);
+            }
+
+            for (const input of inputs) {
+                if (input && typeof input.setAttribute === 'function') {
+                    input.setAttribute('list', datalistId);
+                }
+            }
+
+            const url = '{{ path('admin_routes_list') }}';
+            fetch(url, { headers: { 'Accept': 'application/json' } })
+                .then((r) => r.ok ? r.json() : Promise.reject(r))
+                .then((routes) => {
+                    if (!Array.isArray(routes)) {
+                        return;
+                    }
+
+                    datalist.innerHTML = '';
+                    for (const route of routes) {
+                        if (!route || typeof route.name !== 'string') {
+                            continue;
+                        }
+                        const opt = document.createElement('option');
+                        opt.value = route.name;
+                        if (typeof route.path === 'string' && route.path.trim() !== '') {
+                            opt.label = route.path;
+                        }
+                        datalist.appendChild(opt);
+                    }
+                })
+                .catch(() => {
+                    // No-op: route suggestions are optional.
+                });
+        })();
+    </script>
+{% endblock %}

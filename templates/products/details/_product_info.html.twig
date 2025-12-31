@@ -1,0 +1,88 @@
+<div class="product__details__text">
+    <h3>{{ product.name }} <span>Marque: {{ product.brand|default('N/A') }}</span></h3>
+    <div class="rating">
+        <i class="fa fa-star"></i>
+        <i class="fa fa-star"></i>
+        <i class="fa fa-star"></i>
+        <i class="fa fa-star"></i>
+        <i class="fa fa-star-half-o"></i>
+        <span>( 138 avis )</span>
+    </div>
+    {% set variantsAll = product.variants|default([]) %}
+    {% set variants = [] %}
+    {% for v in variantsAll %}
+        {% if v.name is defined and v.name == 'Variante par défaut' %}
+        {% else %}
+            {% set variants = variants|merge([v]) %}
+        {% endif %}
+    {% endfor %}
+
+    {% if variants is empty and variantsAll|length > 0 %}
+        {% set variants = variantsAll %}
+    {% endif %}
+    {% set fallbackVariant = variants|length > 0 ? (variants|first) : (variantsAll|length > 0 ? (variantsAll|first) : null) %}
+    {% set activeVariant = (selectedVariant is defined and selectedVariant and selectedVariant.name is defined and selectedVariant.name != 'Variante par défaut') ? selectedVariant : fallbackVariant %}
+    {% set priceCents = (effectivePrice is defined and effectivePrice is not null) ? effectivePrice : ((activeVariant and activeVariant.price is not null) ? activeVariant.price : 0) %}
+    {% set stockQty = (effectiveStock is defined and effectiveStock is not null) ? effectiveStock : ((activeVariant and activeVariant.stock is not null) ? activeVariant.stock : 0) %}
+    <div class="product__details__price">{{ (priceCents / 100)|round(2, 'floor') }} €</div>
+    <p>{{ product.description|sanitize_html }}</p>
+    
+    <div class="product__details__button">
+        <div class="quantity">
+            <span>Quantité:</span>
+            <div class="pro-qty">
+                <span class="dec qtybtn">-</span>
+                <input type="text" value="1" id="product-quantity">
+                <span class="inc qtybtn">+</span>
+            </div>
+        </div>
+        {% set fallbackVariant = variants|length > 0 ? (variants|first) : (variantsAll|length > 0 ? (variantsAll|first) : null) %}
+        {% set addVariantId = (selectedVariant is defined and selectedVariant and selectedVariant.id is defined) ? selectedVariant.id : (fallbackVariant ? fallbackVariant.id : 0) %}
+
+        <form method="post" action="{{ path('cart_add', {id: product.id}) }}" style="display:inline; margin:0;">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token('cart_add_' ~ product.id) }}">
+            {% if addVariantId %}
+                <input type="hidden" name="variant" value="{{ addVariantId }}">
+            {% endif %}
+            <button type="submit" class="cart-btn" style="border:0; background:none; padding:0;">
+                <span class="icon_bag_alt"></span> Ajouter au panier
+            </button>
+        </form>
+        <ul>
+            <li><a href="#"><span class="icon_heart_alt"></span></a></li>
+        </ul>
+    </div>
+    
+    <div class="product__details__widget">
+        <ul>
+            <li>
+                <span>Disponibilité:</span>
+                <div class="stock__checkbox">
+                    <label for="stockin">
+                        {% if stockQty > 0 %}
+                            En stock ({{ stockQty }} disponible{% if stockQty > 1 %}s{% endif %})
+                        {% else %}
+                            Rupture de stock
+                        {% endif %}
+                        <input type="checkbox" id="stockin" {% if stockQty > 0 %}checked{% endif %}>
+                        <span class="checkmark"></span>
+                    </label>
+                </div>
+            </li>
+            {% if activeVariant and activeVariant.color %}
+            <li>
+                <span>Couleur:</span>
+                <p>{{ color_label(activeVariant.color) }}</p>
+            </li>
+            {% endif %}
+            <li>
+                <span>Catégorie:</span>
+                <p>{{ product.categories.name }}</p>
+            </li>
+            <li>
+                <span>Promotions:</span>
+                <p>Livraison gratuite</p>
+            </li>
+        </ul>
+    </div>
+</div>

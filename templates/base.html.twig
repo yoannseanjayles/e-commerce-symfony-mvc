@@ -1,0 +1,20 @@
+<!doctype html>
+<html class="no-js" lang="zxx">
+<head>
+    {% include 'partials/_head.html.twig' %}
+</head>
+<body class="full-wrapper">
+    {% include 'partials/_preloader.html.twig' %}
+    {% include 'partials/_header.html.twig' %}
+
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    {% include 'partials/_footer.html.twig' %}
+    {% include 'partials/_search_model.html.twig' %}
+    {% include 'partials/_back_top.html.twig' %}
+    {% include 'partials/_scripts.html.twig' %}
+</body>
+</html>

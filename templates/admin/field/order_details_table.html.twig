@@ -1,0 +1,70 @@
+{#
+  Renders an Orders.ordersDetails collection as a compact cart summary table in EasyAdmin.
+  Expected value: iterable<App\Entity\OrdersDetails>
+#}
+
+{% set lines = value is iterable ? value : [] %}
+
+{% if lines|length == 0 %}
+    <div class="text-muted">Aucune ligne de commande.</div>
+{% else %}
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+            <tr>
+                <th style="width: 70px;">Aperçu</th>
+                <th>Produit</th>
+                <th style="width: 110px;" class="text-end">Prix</th>
+                <th style="width: 90px;" class="text-end">Qté</th>
+                <th style="width: 130px;" class="text-end">Sous-total</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% set grandTotal = 0 %}
+            {% for line in lines %}
+                {% set product = line.products %}
+                {% set variant = line.productVariant is defined ? line.productVariant : null %}
+                {% set unit = line.price %}
+                {% set qty = line.quantity %}
+                {% set subtotal = unit * qty %}
+                {% set grandTotal = grandTotal + subtotal %}
+
+                {% set firstImage = product and product.images is defined ? (product.images|first) : null %}
+
+                <tr>
+                    <td>
+                        {% if firstImage %}
+                            <img src="{{ asset('assets/uploads/' ~ firstImage.name) }}" alt="{{ product ? product.name : 'Produit' }}" loading="lazy" style="width:56px;height:56px;object-fit:cover;border-radius:6px;">
+                        {% else %}
+                            <div style="width:56px;height:56px;border-radius:6px;background:#f7f7fd;"></div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="fw-semibold">{{ product ? product.name : '—' }}</div>
+                        {% if variant %}
+                            <div class="text-muted small">{{ variant.name }}</div>
+                            {% if line.selectedSize is defined and line.selectedSize %}
+                                <div class="text-muted small">Taille choisie: {{ line.selectedSize }}</div>
+                            {% elseif variant.size is defined and variant.size %}
+                                <div class="text-muted small">Taille(s): {{ variant.size }}</div>
+                            {% endif %}
+                            {% if variant.barcode is defined and variant.barcode %}
+                                <div class="text-muted small">EAN/UPC: {{ variant.barcode }}</div>
+                            {% endif %}
+                        {% endif %}
+                    </td>
+                    <td class="text-end">{{ (unit / 100)|number_format(2, ',', ' ') }} €</td>
+                    <td class="text-end">{{ qty }}</td>
+                    <td class="text-end">{{ (subtotal / 100)|number_format(2, ',', ' ') }} €</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+            <tfoot>
+            <tr>
+                <th colspan="4" class="text-end">Total</th>
+                <th class="text-end">{{ (grandTotal / 100)|number_format(2, ',', ' ') }} €</th>
+            </tr>
+            </tfoot>
+        </table>
+    </div>
+{% endif %}

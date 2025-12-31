@@ -1,0 +1,40 @@
+# see https://symfony.com/doc/current/reference/configuration/framework.html
+framework:
+    secret: '%env(APP_SECRET)%'
+    #csrf_protection: true
+    http_method_override: false
+
+    rate_limiter:
+        forgot_password:
+            policy: 'token_bucket'
+            limit: 5
+            rate: { interval: '1 minute', amount: 1 }
+
+        registration:
+            policy: 'token_bucket'
+            limit: 5
+            rate: { interval: '1 minute', amount: 1 }
+
+        resend_verification:
+            policy: 'token_bucket'
+            limit: 3
+            rate: { interval: '1 minute', amount: 1 }
+
+    # Enables session support. Note that the session will ONLY be started if you read or write from it.
+    # Remove or comment this section to explicitly disable session support.
+    session:
+        handler_id: null
+        cookie_secure: auto
+        cookie_samesite: lax
+        storage_factory_id: session.storage.factory.native
+
+    #esi: true
+    #fragments: true
+    php_errors:
+        log: true
+
+when@test:
+    framework:
+        test: true
+        session:
+            storage_factory_id: session.storage.factory.mock_file

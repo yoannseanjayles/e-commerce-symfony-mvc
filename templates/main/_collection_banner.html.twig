@@ -1,0 +1,69 @@
+<!-- Promotions Banner -->
+<section class="collection section-bg2 section-padding30 section-over1 ml-15 mr-15" data-background="{{ asset('assets/img/gallery/section_bg01.png') }}">
+    <div class="container-fluid">
+        <div class="row justify-content-center mb-50">
+            <div class="col-xl-8 col-lg-10">
+                <div class="section-tittle text-center">
+                    <h2 class="wow fadeInUp" data-wow-duration="2s" data-wow-delay=".1s" style="color: white; margin-bottom: 15px;">Nos Promotions Exclusives</h2>
+                    <p style="color: rgba(255,255,255,0.9); font-size: 16px;">Profitez de nos codes promo exceptionnels pour économiser sur vos achats</p>
+                </div>
+            </div>
+        </div>
+        
+        {% if coupons|length > 0 %}
+        <div class="row justify-content-center">
+            {% for coupon in coupons %}
+            <div class="col-xl-3 col-lg-4 col-md-6 mb-30">
+                <div class="single-new-arrival" style="border: 3px solid white; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.2); background: white;">
+                    {# Image du produit #}
+                    <div class="popular-img" style="position: relative; overflow: hidden; height: 250px;">
+                        <img src="{{ asset('assets/img/gallery/arrival1.png') }}" alt="{{ coupon.products.name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                        {# Badge de réduction #}
+                        <div class="img-cap" style="position: absolute; top: 15px; left: 15px; background: #9F78FF; color: white; padding: 8px 15px; border-radius: 8px; font-weight: 700; font-size: 18px;">
+                            {% if coupon.couponsTypes.name == 'Pourcentage' %}
+                                -{{ coupon.discount }}%
+                            {% else %}
+                                -{{ (coupon.discount / 100)|number_format(2) }}€
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    {# Informations du coupon #}
+                    <div class="popular-caption" style="padding: 25px 20px; text-align: center;">
+                        <h4 style="margin: 0 0 10px 0; font-size: 16px; color: #1D2547; min-height: 40px; line-height: 1.4;">{{ coupon.products.name }}</h4>
+                        
+                        <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 8px; color: #9F78FF; font-weight: 600;">Code Promo</div>
+                        <div style="margin: 0 0 12px 0; font-size: 22px; font-weight: 700; color: #1D2547; font-family: monospace; background: #f7f7fd; padding: 8px; border-radius: 5px; border: 2px dashed #9F78FF;">{{ coupon.code }}</div>
+                        
+                        <p style="margin: 0 0 12px 0; color: #646D77; font-size: 12px; min-height: 35px;">{{ coupon.description }}</p>
+                        
+                        <div style="border-top: 1px solid #eee; padding-top: 12px; margin-top: 12px;">
+                            <p style="margin: 0 0 6px 0; color: #646D77; font-size: 11px;">
+                                <i class="ti-calendar" style="margin-right: 5px; color: #9F78FF;"></i>
+                                Valide jusqu'au {{ coupon.validity|date('d/m/Y') }}
+                            </p>
+                            <p style="margin: 0 0 12px 0; color: #646D77; font-size: 11px;">
+                                <i class="ti-ticket" style="margin-right: 5px; color: #9F78FF;"></i>
+                                {{ coupon.maxUsage }} utilisations restantes
+                            </p>
+                            <a href="{{ path('products_details', {slug: coupon.products.slug}) }}" class="btn btn-sm" style="width: 100%; padding: 8px;">Voir le produit</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="row justify-content-center">
+            <div class="col-xl-6 col-lg-8">
+                <div style="text-align: center; padding: 40px 20px; background: rgba(255,255,255,0.95); border-radius: 12px;">
+                    <i class="ti-gift" style="font-size: 48px; color: #9F78FF; margin-bottom: 15px;"></i>
+                    <h3 style="margin-bottom: 10px; color: #1D2547; font-size: 22px;">Aucune promotion en cours</h3>
+                    <p style="color: #646D77; margin-bottom: 20px;">Revenez bientôt pour découvrir nos offres exclusives !</p>
+                    <a href="{{ path('products_index') }}" class="btn">Découvrir nos produits</a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</section>
