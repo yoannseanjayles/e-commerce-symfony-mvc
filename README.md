@@ -1,4 +1,4 @@
-# Votre boutique en ligne — Mode d’emploi 
+# Ecommerce Symfony MVC — Mode d’emploi 
 
 
 ---
@@ -24,9 +24,6 @@
 14. [Base de données : migrations & fixtures](#14-base-de-données--migrations--fixtures)
 15. [Accès admin & sécurité](#15-accès-admin--sécurité)
 16. [Structure MVC : où mettre quoi](#16-structure-mvc--où-mettre-quoi)
-17. [Stripe : fonctionnement & bonnes pratiques](#17-stripe-fonctionnement--bonnes-pratiques)
-18. [IA (OpenAI) : activer, cadrer, maîtriser les coûts](#18-ia-openai-activer-cadrer-maîtriser-les-coûts)
-19. [Qualité / sécurité / exploitation](#19-qualité--sécurité--exploitation)
 20. [Dépannage](#20-dépannage)
 21. [Déploiement](#21-déploiement)
 
@@ -279,39 +276,6 @@ Exemples rapides :
 - nouvelle page : `Controller` + `templates`
 - nouveau champ DB : `Entity` + migration
 - nouveau use‑case : `Service` + tests
-
----
-
-## 17) Stripe — fonctionnement & bonnes pratiques
-
-- La redirection “success” ne suffit pas : finaliser via **webhook signé** (`STRIPE_WEBHOOK_SECRET`).
-- Idempotence : éviter la double création de commande (session key/lock/unique).
-- Journaliser : création checkout, réception webhook, transition statut.
-
----
-
-## 18) IA (OpenAI) — activer, cadrer, maîtriser les coûts
-
-Présence fonctionnelle IA :
-- `src/Service/Ai/*`
-- contrôleurs admin AI/GPT
-- templates admin dédiés
-
-Recommandations :
-- garde‑fous : rate limit / quotas / coût
-- timeouts, size caps, validation MIME sur imports
-- logs : action, user, prompt type, coût estimé
-
----
-
-## 19) Qualité / sécurité / exploitation
-
-Minimum recommandé :
-- actions mutatives : **POST/DELETE + CSRF**
-- éviter `|raw` sur storefront (XSS)
-- logs : commandes/paiements/imports
-- tests : au moins parcours panier → commande
-- CI : PHPStan + CS Fixer
 
 ---
 
