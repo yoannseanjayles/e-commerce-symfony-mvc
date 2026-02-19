@@ -2120,7 +2120,8 @@ TXT;
                     'notes' => [
                         'type' => 'array',
                         'maxItems' => 3,
-                                'minItems' => 1,
+                        'minItems' => 1,
+                        'items' => ['type' => 'string', 'maxLength' => 160],
                     ],
                     'variants' => [
                         'type' => 'array',
