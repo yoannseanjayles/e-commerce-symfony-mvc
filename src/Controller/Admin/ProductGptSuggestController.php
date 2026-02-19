@@ -112,17 +112,7 @@ final class ProductGptSuggestController extends AbstractController
         }
 
         try {
-            $img = $this->suggestService->suggestSingleImageOnly($fields, $options);
-            $result = [
-                'images' => ($img['url'] ?? null) ? [[
-                    'url' => $img['url'],
-                    'label' => $img['label'] ?? null,
-                    'color' => null,
-                    'confidence' => $img['confidence'] ?? 0,
-                ]] : [],
-                'sources' => [],
-                'notes' => (isset($img['note']) && is_string($img['note']) && trim($img['note']) !== '') ? [trim($img['note'])] : [],
-            ];
+            $result = $this->suggestService->suggestImagesOnly($fields, $options);
         } catch (\Throwable $e) {
             return $this->json([
                 'error' => 'Suggestion failed.',

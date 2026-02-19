@@ -121,16 +121,7 @@ final class ProductVariantGptSuggestController extends AbstractController
         $options = $this->normalizeOptions($options);
 
         try {
-            $img = $this->suggestService->suggestSingleImageOnly($fields, $product, $options);
-            $result = [
-                'images' => ($img['url'] ?? null) ? [[
-                    'url' => $img['url'],
-                    'label' => $img['label'] ?? null,
-                    'confidence' => $img['confidence'] ?? 0,
-                ]] : [],
-                'sources' => [],
-                'notes' => (isset($img['note']) && is_string($img['note']) && trim($img['note']) !== '') ? [trim($img['note'])] : [],
-            ];
+            $result = $this->suggestService->suggestImagesOnly($fields, $product, $options);
         } catch (\Throwable $e) {
             return $this->json([
                 'error' => 'Suggestion failed.',
