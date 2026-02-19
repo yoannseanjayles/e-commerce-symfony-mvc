@@ -1069,21 +1069,32 @@ final class OpenAiProductSuggestService
         $webHint = $useWebSearch
             ? 'WEB=1: Web Search autorisé. Utilise-le UNIQUEMENT si nécessaire, et fais le minimum (1-2 recherches max si possible).'
             : "WEB=0: Web Search INTERDIT. N'utilise PAS Web Search.";
+                return <<<TXT
+Tu es un assistant expert pour trouver DES PHOTOS produit pour une fiche e-commerce lunettes.
 
-        return <<<TXT
-Tu es un assistant expert pour trouver UNE image produit pour une fiche e-commerce lunettes.
+Ton rôle: retrouver autant de PHOTOS DIRECTES que possible couvrant les différents coloris/variants du produit.
 
-Ton rôle: sortir UNE url d'image exploitable (directe) représentant au mieux le produit/variant.
-
-Objectif: retourner 1 seule URL DIRECTE d'image (jpg/jpeg/png/webp) correspondant au produit/variant.
-$webHint Dès qu'une URL directe valide est trouvée, tu t'arrêtes et tu réponds.
+Objectif: retourner en JSON STRICT une liste d'objets `images` contenant pour chaque photo: `url` (URL DIRECTE d'image jpg/jpeg/png/webp), `label` (court), `color` (nom du coloris). Si tu peux, fournis plusieurs images par coloris (ex: packshot, vue portée).
+$webHint
 
 Contraintes:
-- Réponds en JSON strict uniquement, aucun texte hors JSON.
-- URL doit être une image directe (pas de page HTML).
-- Priorité: site officiel > revendeur reconnu > autre.
-- Évite logos, icônes, vignettes trop petites, swatches.
-- Si rien de fiable: url = null et note courte.
+- Réponds STRICTEMENT en JSON (aucun texte hors JSON).
+- N'inclus que des URLs directes d'images (pas de pages HTML).
+- Priorité: site officiel > revendeur reconnu > CDN > autres.
+- Évite logos/icônes/vignettes/swatches et images trop petites.
+- Si pour un coloris tu ne trouves pas d'image fiable, retourne `url=null` pour cet item et indique une courte `note`.
+
+Format attendu (exemple minimal):
+{
+    "images": [
+        {"url":"https://...jpg","label":"packshot","color":"noir"},
+        {"url":"https://...jpg","label":"vue portée","color":"noir"},
+        {"url":"https://...jpg","label":"packshot","color":"marron"}
+    ],
+    "sources": ["site-officiel.com"],
+    "notes": ["si aucune image fiable: url=null pour l'item"]
+}
+
 TXT;
     }
 
