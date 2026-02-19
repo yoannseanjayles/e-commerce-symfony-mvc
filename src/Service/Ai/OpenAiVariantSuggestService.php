@@ -259,7 +259,7 @@ final class OpenAiVariantSuggestService
             : 'Assistant fiche variante lunettes (FR). Réponds JSON strict (schéma). Incertain->null+note courte. Ne jamais inventer barcode/price/stock/mesures.';
 
         $modeSuffix = match ($mode) {
-            'images' => 'MODE=IMAGES: images uniquement (URLs directes jpg/jpeg/png/webp). Ignore tout le reste. Stop dès que possible.',
+            'images' => 'MODE=IMAGES: images uniquement (URLs directes jpg/jpeg/png/webp). Ignore tout le reste. Retourne plusieurs URLs (respecte la limite demandée par le schéma).',
             'fields' => 'MODE=FIELDS: champs variante uniquement. Pas d\'images.',
             default => 'MODE=FULL: champs + images si utile.',
         };

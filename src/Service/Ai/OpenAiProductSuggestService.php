@@ -1026,7 +1026,7 @@ final class OpenAiProductSuggestService
             . "Ne jamais inventer barcode/price/stock.";
 
         $modeSuffix = match ($mode) {
-            'images' => 'MODE=IMAGES: images uniquement (URLs directes jpg/jpeg/png/webp). Ignore tout le reste. Stop dès que possible.',
+            'images' => 'MODE=IMAGES: images uniquement (URLs directes jpg/jpeg/png/webp). Ignore tout le reste. Retourne plusieurs URLs (respecte la limite demandée par le schéma).',
             'variants' => 'MODE=VARIANTS: variants uniquement. Pas d\'images. Donne AU MOINS 1 variante. Si tu ne peux pas distinguer plusieurs variantes, propose 1 variante "par défaut" (même nom que le modèle) avec les autres champs à null.',
             'fields' => 'MODE=FIELDS: champs produit uniquement. Pas d\'images/variants.',
             default => 'MODE=FULL: champs + (images/variants si utile).',
